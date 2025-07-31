@@ -14,6 +14,7 @@ namespace TaskTracker.Domain.Entities
 
         private TaskItem() { } // EF için
 
+
         public TaskItem(string title, string description, bool iscompleted, DateTime dueDate, Priority priority)
         {
             Title = title;
