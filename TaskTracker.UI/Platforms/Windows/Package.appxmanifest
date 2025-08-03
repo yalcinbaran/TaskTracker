@@ -6,7 +6,10 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+  <Identity
+    Name="com.yalcin.tasktracker"
+    Publisher="CN=tasktracker"
+    Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="1E8C31CD-745D-469E-8AA0-F4493D4B0C0F" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskTracker.Application.DTOs;
+﻿using TaskTracker.Application.CommandsQueriesHandlers.DTOs;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.ValueObjects;
 
@@ -18,11 +13,13 @@ namespace TaskTracker.Application.Mappings
 
             return new TaskItemDTO
             {
+                Id = task.Id,
                 Title = task.Title,
                 Description = task.Description,
-                IsCompleted = task.IsCompleted,
                 DueDate = task.DueDate,
-                PriorityLevel = task.Priority.Level
+                PriorityName = task.Priority!.Name,
+                TaskStateName = task.TaskState!.Name,
+                UserId = task.UserId
             };
         }
 
@@ -31,14 +28,15 @@ namespace TaskTracker.Application.Mappings
         {
             if (dto == null) return null;
 
-            var priority = Priority.FromLevel(dto.PriorityLevel);
-
+            var priority = Priority.FromName(dto.PriorityName!);
+            var state = TaskState.FromName(dto.TaskStateName!);
             return new TaskItem(
                 dto.Title ?? string.Empty,
                 dto.Description ?? string.Empty,
-                dto.IsCompleted,
                 dto.DueDate,
-                priority
+                priority,
+                state,
+                dto.UserId
             );
         }
 

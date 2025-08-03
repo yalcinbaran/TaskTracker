@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
+using TaskTracker.Domain.ValueObjects;
 using TaskTracker.Infrastructure.Persistence;
 
 namespace TaskTracker.Infrastructure.Repository
@@ -14,10 +10,19 @@ namespace TaskTracker.Infrastructure.Repository
     {
         private readonly AppDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        public async Task AddAsync(TaskItem task)
+        public async Task<(OperationResult Result, Guid CreatedId)> AddAsync(TaskItem task)
         {
-            await _context.TaskItems.AddAsync(task);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.TaskItems.AddAsync(task);
+                await _context.SaveChangesAsync();
+
+                return (OperationResult.Ok("Görev başarıyla eklendi."), task.Id);
+            }
+            catch (Exception ex)
+            {
+                return (OperationResult.Fail($"Görev eklenirken hata oluştu: {ex.Message}"), Guid.Empty);
+            }
         }
 
         public async Task<TaskItem?> GetByIdAsync(Guid id)
@@ -30,32 +35,99 @@ namespace TaskTracker.Infrastructure.Repository
             return await _context.TaskItems.AsNoTracking().ToListAsync();
         }
 
-        public async Task UpdateAsync(TaskItem task)
+        public async Task<IEnumerable<TaskItem>> GetTasksByPriorityAsync(int priorityLevel)
         {
-            _context.Update(task);
-            await _context.SaveChangesAsync();
+            return await _context.TaskItems.Where(t => t.Priority!.Level == priorityLevel).AsNoTracking().ToListAsync();
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<IEnumerable<TaskItem>> GetTasksByStateAsync(int taskStateLevel)
         {
-            var entity = await _context.TaskItems.FindAsync(id);
-            if (entity != null)
+            return await _context.TaskItems.Where(t => t.TaskState!.Level == taskStateLevel).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetTasksBySerachQuery(string serachQuery)
+        {
+            return await _context.TaskItems.Where(t => t.Title!.Contains(serachQuery) || t.Description!.Contains(serachQuery)).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date)
+        {
+            return await _context.TaskItems.Where(t => t.DueDate.Date < date.Date).AsNoTracking().ToListAsync();
+        }
+
+        public async Task<(OperationResult Result, Guid UpdatedId)> UpdateAsync(TaskItem task)
+        {
+            try
             {
-                _context.Remove(entity);
-                await _context.SaveChangesAsync();
+                await _context.TaskItems
+                    .Where(t => t.Id == task.Id)
+                    .ExecuteUpdateAsync(t => t.SetProperty(x => x.Title, task.Title)
+                                               .SetProperty(x => x.Description, task.Description)
+                                               .SetProperty(x => x.DueDate, task.DueDate)
+                                               .SetProperty(x => x.Priority, task.Priority)
+                                               .SetProperty(x => x.TaskState, task.TaskState)
+                                               .SetProperty(x => x.UserId, task.UserId));
+                return (OperationResult.Ok("Görev başarıyla güncellendi."), task.Id);
+            }
+            catch (Exception ex)
+            {
+                return (OperationResult.Fail($"Görev güncellenirken hata oluştu: {ex.Message}"), Guid.Empty);
             }
         }
 
-        public async Task DeleteRange(IEnumerable<Guid> ids)
+        public async Task<OperationResult> DeleteAsync(Guid id)
+        {
+            var entity = await _context.TaskItems.FindAsync(id);
+            if (entity == null)
+            {
+                // Task bulunamadıysa, uygun bir başarısız sonuç döndür
+                return OperationResult.Fail("Görev bulunamadı");
+            }
+
+            try
+            {
+                _context.Remove(entity);
+                await _context.SaveChangesAsync();
+                return OperationResult.Ok("Görev başarıyla silindi");
+            }
+            catch (Exception ex)
+            {
+                return OperationResult.Fail($"Görev silme sırasında bir hata meydana geldi: {ex.Message}" ?? "Bilinmeyen hata.");
+            }
+        }
+
+        public async Task<List<TaskDeleteResult>> DeleteRangeAsync(IEnumerable<Guid> ids)
         {
             var entities = await _context.TaskItems
                 .Where(t => ids.Contains(t.Id))
                 .ToListAsync();
-            if (entities.Count > 0)
+
+            var results = new List<TaskDeleteResult>();
+
+            foreach (var entity in entities)
             {
-                _context.RemoveRange(entities);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Remove(entity);
+                    await _context.SaveChangesAsync();
+
+                    results.Add(new TaskDeleteResult(entity.Id, entity.Title!, entity.DueDate, true));
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new TaskDeleteResult(entity.Id, entity.Title!, entity.DueDate, false, ex.Message));
+                }
             }
+
+            // İstenilen id'ler içinde bulunamayanlar için de sonuç oluşturabilirsin
+            var foundIds = entities.Select(e => e.Id).ToHashSet();
+            var notFoundIds = ids.Where(id => !foundIds.Contains(id));
+            foreach (var id in notFoundIds)
+            {
+                results.Add(new TaskDeleteResult(id, string.Empty, DateTime.MinValue, false, "Görev bulunamadı."));
+            }
+
+            return results;
         }
     }
 }
