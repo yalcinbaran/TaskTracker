@@ -1,0 +1,26 @@
+﻿using TaskTracker.SharedKernel.Common;
+using TaskTrackerUI.Interfaces;
+using TaskTrackerUI.Models;
+
+namespace TaskTrackerUI.Services
+{
+    public class UserSessionService : IUserSessionService
+    {
+        public UserSession CurrentSession { get; private set; } = new();
+
+        public void ClearSession()
+        {
+            CurrentSession = new UserSession();
+        }
+
+        public void SetSession(UserDTO user)
+        {
+            CurrentSession = new UserSession
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = $"{user.Name} {user.Surname}"
+            };
+        }
+    }
+}

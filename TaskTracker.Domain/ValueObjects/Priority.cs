@@ -10,7 +10,9 @@ namespace TaskTracker.Domain.ValueObjects
 
         public string Name { get; }
         public int Level { get; }
-
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        private Priority() { } // EF Core için gerekli
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         private Priority(string name, int level)
         {
             Name = name;
@@ -47,5 +49,4 @@ namespace TaskTracker.Domain.ValueObjects
 
         public override string ToString() => Name;
     }
-
 }
