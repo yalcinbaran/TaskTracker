@@ -3,6 +3,7 @@ using TaskTracker.Application.CommandsQueriesHandlers.Tasks;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.Tasks.Commands;
+using TaskTracker.Application.Tasks.Commands.Handlers;
 using TaskTracker.Application.Tasks.Queries;
 using TaskTracker.Application.Tasks.Queries.Handlers;
 

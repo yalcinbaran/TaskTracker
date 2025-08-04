@@ -13,8 +13,8 @@ namespace TaskTracker.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            //services.AddDbContext<AppDbContext>(options =>
+            //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<IUserRepository, UserRepository>();

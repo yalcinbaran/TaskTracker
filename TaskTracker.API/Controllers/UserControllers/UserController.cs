@@ -32,7 +32,7 @@ namespace TaskTracker.API.Controllers.UserControllers
             if (result.Success && createdId != Guid.Empty)
             {
                 var dto = new UserDTO
-                {
+            {
                     Id = createdId,
                     Name = command.Name,
                     Surname = command.Surname,

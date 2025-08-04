@@ -3,6 +3,7 @@ using TaskTracker.Application.Auth;
 using TaskTracker.SharedKernel.Common;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
+using TaskTracker.Domain.ValueObjects;
 using TaskTracker.Infrastructure.Persistence;
 
 namespace TaskTracker.Infrastructure.Repository
