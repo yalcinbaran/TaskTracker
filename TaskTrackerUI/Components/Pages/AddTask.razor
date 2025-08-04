@@ -27,7 +27,7 @@
         </MudSelect>
         <MudSpacer />
         <MudDatePicker Label="Teslim Tarihi"
-                       DateChanged="@(date => createTaskModel.DueDate = date.Value)"
+                       DateChanged="@(date => createTaskModel.DueDate = date!.Value)"
                        DateFormat="dd.MM.yyyy"
                        PickerVariant="PickerVariant.Inline"
                        MinDate="@dateTime" />

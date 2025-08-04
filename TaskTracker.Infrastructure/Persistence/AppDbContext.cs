@@ -47,5 +47,6 @@ namespace TaskTracker.Infrastructure.Persistence
                 });
             });
         }
+
     }
 }

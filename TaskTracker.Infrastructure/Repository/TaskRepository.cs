@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskTracker.Application.CommandsQueriesHandlers.Tasks;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Infrastructure.Persistence;

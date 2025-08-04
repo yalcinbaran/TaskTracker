@@ -14,6 +14,17 @@ else if (!tasks.Any())
 }
 else
 {
+    <MudGrid >
+        <MudItem xs="12">
+            <MudText Typo="Typo.h5">Görev Listesi</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/tasks/create">Yeni Görev Ekle</MudButton>
+        </MudItem>
+    </MudGrid>
+
+
+
     <MudList T="TaskItemDTO">
         @foreach (var task in tasks)
         {

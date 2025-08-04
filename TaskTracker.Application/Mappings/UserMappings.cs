@@ -1,4 +1,5 @@
-﻿using TaskTracker.Domain.Entities;
+﻿using TaskTracker.Application.CommandsQueriesHandlers.DTOs;
+using TaskTracker.Domain.Entities;
 using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.Application.Mappings

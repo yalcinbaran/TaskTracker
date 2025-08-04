@@ -30,6 +30,7 @@ namespace TaskTracker.Domain.ValueObjects
                 "pending" => Pending,
                 "inprogress" => InProgress,
                 "completed" => Completed,
+                "İptal edildi" => Cancelled,
                 _ => throw new ArgumentException($"Invalid task state: {name}")
             };
         }
