@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Application", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Infrastructure", "TaskTracker.Infrastructure\TaskTracker.Infrastructure.csproj", "{6C06EDE4-3BE6-46FC-9264-4A6CE9910FCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.SharedKernel", "TaskTracker.SharedKernel\TaskTracker.SharedKernel.csproj", "{E9E5C0F8-EDCF-464B-BBE0-FCD263F572FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTracker.Shared", "TaskTracker.SharedKernel\TaskTracker.Shared.csproj", "{E9E5C0F8-EDCF-464B-BBE0-FCD263F572FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskTrackerUI", "TaskTrackerUI\TaskTrackerUI.csproj", "{2678D97B-993D-43DA-B4A9-DC75A12FD592}"
 EndProject

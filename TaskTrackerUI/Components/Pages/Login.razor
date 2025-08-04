@@ -3,6 +3,7 @@
 @inject IUserSessionService _userSessionService
 @inject NavigationManager _navManager
 @inject ISnackbar Snackbar
+@layout LoginLayout
 
 <MudContainer MaxWidth="MaxWidth.Small">
     <MudPaper Height="500px" Width="100%" Square="true" Style="margin-top:100px;">
@@ -10,21 +11,22 @@
             <MudTabPanel Text="Login">
                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%; margin-top:25px;">
                     <MudForm @ref="_loginForm" Model="_loginModel">
-                        <MudTextField @bind-Value="_loginModel.Username" Label="Username" Required="true" />
-                        <MudTextField @bind-Value="_loginModel.Password" Label="Password" InputType="InputType.Password" Required="true" />
-                        <MudButton OnClick="SubmitLogin">Login</MudButton>
+                        <MudTextField @bind-Value="_loginModel.Username" For="@(() => _loginModel.Username)" Label="Username" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_loginModel.Password" For="@(() => _loginModel.Password)" Label="Password" InputType="InputType.Password" Required="true" Class="fields" />
+                        <MudButton OnClick="SubmitLogin" Disabled=@_isLoginDisabled>Login</MudButton>
                     </MudForm>
                 </MudStack>
             </MudTabPanel>
             <MudTabPanel Text="Register">
                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%; margin-top:25px;">
                     <MudForm @ref="_registerForm" Model="_registerModel">
-                        <MudTextField @bind-Value="_registerModel.FirstName" T="string" Label="İsim" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Text" Class="fields" />
-                        <MudTextField @bind-Value=_registerModel.SurName T="string" Label="Soyisim" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Text" Class="fields" />
-                        <MudTextField @bind-Value="_registerModel.Email" T="string" Label="E-posta" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Email" Class="fields" />
-                        <MudTextField @bind-Value="_registerModel.Password" T="string" Label="Şifre" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password" Class="fields" />
-                        <MudTextField @bind-Value="_registerModel.PasswordConfirm" T="string" Label="Şifre Tekrar" Variant="Variant.Outlined" Margin="Margin.Dense" InputType="InputType.Password" Class="fields" />
-                        <MudButton OnClick="SubmitRegister" Variant="Variant.Filled" Color="Color.Primary">Register</MudButton>
+                        <MudTextField @bind-Value="_registerModel.Name" For="@(() => _registerModel.Name)" Label="İsim" InputType="InputType.Text" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_registerModel.Surname" For="@(() => _registerModel.Surname)" Label="Soy isim" InputType="InputType.Text" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_registerModel.Email" For="@(() => _registerModel.Email)" Label="E-posta" InputType="InputType.Email" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_registerModel.Username" For="@(() => _registerModel.Username)" Label="Kullanıcı adı" InputType="InputType.Email" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_registerModel.Password" For="@(() => _registerModel.Password)" Label="Şifre" InputType="InputType.Password" Required="true" Class="fields" />
+                        <MudTextField @bind-Value="_registerModel.PasswordConfirm" For="@(() => _registerModel.PasswordConfirm)" Label="Şifre Tekrar" InputType="InputType.Password" Required="true" Class="fields" />
+                        <MudButton OnClick="SubmitRegister" Disabled=_isRegisterDisabled Variant="Variant.Filled" Color="Color.Primary">Register</MudButton>
                     </MudForm>
                 </MudStack>
             </MudTabPanel>
@@ -43,44 +45,55 @@
     private MudForm? _registerForm;
     private LoginModel _loginModel = new();
     private RegisterModel _registerModel = new();
+    private bool _isLoginDisabled = false;
+    private bool _isRegisterDisabled = false;
 
     private async Task SubmitLogin()
     {
+        _isLoginDisabled = true;
         await _loginForm!.Validate();
 
         if (_loginForm.IsValid)
         {
-            var result = await authService.LoginAsync<UserDTO>(_loginModel);
+            try
+            {
+                var result = await authService.LoginAsync<UserDTO>(_loginModel);
 
-            if (result.Success && result.Data is not null)
-            {
-                _userSessionService.SetSession(result.Data);
-                _navManager.NavigateTo("/dashboard");
-                Snackbar.Add("Giriş başarılı!", Severity.Success);
+                if (result.Success && result.Data is not null)
+                {
+                    _userSessionService.SetSession(result.Data!);
+                    _navManager.NavigateTo("/home");
+                }
+                else
+                {
+                    Snackbar.Add(result.Message, Severity.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Snackbar.Add(result.Message, Severity.Error);
+                Snackbar.Add($"Giriş sırasında beklenmeyen bir hata oluştu: {ex.Message}", Severity.Error);
             }
         }
+        _isLoginDisabled = false;
     }
 
     private async Task SubmitRegister()
     {
+        _isRegisterDisabled = true;
         await _registerForm!.Validate();
+
         if (_registerForm.IsValid)
         {
             var result = await authService.RegisterAsync<UserDTO>(_registerModel);
-            if (result.Success && result.Data is not null)
+            if (result.Success)
             {
-                _userSessionService.SetSession(result.Data);
-                _navManager.NavigateTo("/dashboard");
-                Snackbar.Add("Kayıt başarılı!", Severity.Success);
+                Snackbar.Add($"{result.Message} Giriş yapabilirsiniz.", Severity.Success);
             }
             else
             {
                 Snackbar.Add(result.Message, Severity.Error);
             }
         }
+        _isRegisterDisabled = false;
     }
 }

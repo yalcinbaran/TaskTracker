@@ -1,4 +1,6 @@
-﻿namespace TaskTracker.SharedKernel.Common
+﻿using TaskTracker.SharedKernel.Common;
+
+namespace TaskTracker.Shared.Common
 {
     public class TaskItemDTO
     {

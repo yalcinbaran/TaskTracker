@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using TaskTracker.Application.CommandsQueriesHandlers.Tasks;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.User.Commands.Handlers;
@@ -29,6 +30,8 @@ namespace TaskTracker.Application
             services.AddScoped<GetUserByIdQueryHandler>();
             services.AddScoped<DeleteUserCommandHandler>();
             services.AddScoped<UpdateUserCommandHandler>();
+            services.AddScoped<GetPriorityQueryHandler>();
+            services.AddScoped<GetStatesQueryHandler>();
             return services;
         }
     }

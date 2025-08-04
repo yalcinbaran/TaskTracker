@@ -1,0 +1,96 @@
+﻿@page "/addtask"
+@using TaskTracker.Shared.Common
+@inject ITaskApiService _taskApiService
+@inject ITaskService _taskService
+@inject ISnackbar Snackbar
+@inject IUserSessionService _userService
+@inject NavigationManager _navManager
+@inject AppMessageState _appMessageState
+
+<MudForm @ref="@mudForm" Model="createTaskModel" Style="width:800px; margin-top: 50px;">
+    <MudTextField T="string" Label="Görev Başlığı" @bind-Value="@createTaskModel.Title" For="@(() => createTaskModel.Title)" Required="true" />
+        <div style="height:20px;"></div>
+    <MudTextField T="string" Label="Görev Açıklaması" @bind-Value="@createTaskModel.Description" For="@(() => createTaskModel.Description)" Required="true" />
+    <div style="display: flex; flex-direction: row; margin-top:40px;">
+        <MudSelect T="int" Label="Öncelik" @bind-Value="@createTaskModel.PriorityLevel" For="@(() => createTaskModel.PriorityLevel)" Required="true" Style="width:32%">
+            @foreach (var priority in Priorities)
+            {
+                <MudSelectItem Value="@priority.Level">@priority.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSpacer />
+        <MudSelect T="int" Label="Durum" @bind-Value="@createTaskModel.StateLevel" For="@(() => createTaskModel.StateLevel)" Required="true" Style="width:32%">
+            @foreach (var state in States)
+            {
+                <MudSelectItem Value="@state.Level">@state.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSpacer />
+        <MudDatePicker Label="Teslim Tarihi"
+                       DateChanged="@(date => createTaskModel.DueDate = date.Value)"
+                       DateFormat="dd.MM.yyyy"
+                       PickerVariant="PickerVariant.Inline"
+                       MinDate="@dateTime" />
+    </div>
+</MudForm>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateTaskAsync" Style="margin-top: 20px;">Görev Ekle</MudButton>
+
+@code {
+    MudForm? mudForm;
+    private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
+    private IEnumerable<StateDto> States = new List<StateDto>();
+    private CreateTaskModel createTaskModel = new CreateTaskModel();
+    private DateTime dateTime = DateTime.Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
+        {
+            Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
+            _appMessageState.SnackbarMessage = null;
+        }
+        await PriorityAndState();
+        StateHasChanged();
+    }
+
+    async Task CreateTaskAsync()
+    {
+        await mudForm!.Validate();
+        if (!mudForm.IsValid)
+        {
+            Snackbar.Add("Lütfen tüm alanları doldurun!", Severity.Error);
+            return;
+        }
+        if (createTaskModel != null)
+        {
+            var response = await _taskService.CreateTaskAsync(createTaskModel);
+            if (response.Success)
+            {
+                _appMessageState.SnackbarMessage = "Görev başarıyla oluşturuldu!";
+                _appMessageState.SnackbarSeverity = Severity.Success;
+                _navManager.NavigateTo("/tasks");                
+            }
+            else
+            {
+                Snackbar.Add(response.Message, Severity.Error);
+            }
+        }
+    }
+
+    async Task PriorityAndState()
+    {
+        var response = await _taskApiService.GetPrioritiesAsync();
+        Priorities = response ?? new List<PriorityDto>();
+        if (Priorities?.Any() == true)
+        {
+            createTaskModel.PriorityLevel = Priorities.First().Level;
+        }
+        var stateResponse = await _taskApiService.GetStatesAsync();
+        States = stateResponse ?? new List<StateDto>();
+        if (States?.Any() == true)
+        {
+            createTaskModel.StateLevel = States.ElementAt(1).Level;
+        }
+        createTaskModel.UserId = _userService.CurrentSession.UserId;
+    }
+}

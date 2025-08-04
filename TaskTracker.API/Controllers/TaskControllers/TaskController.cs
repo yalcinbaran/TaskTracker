@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskTracker.Application.CommandsQueriesHandlers.Tasks;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.Tasks.Commands;
@@ -13,15 +14,19 @@ namespace TaskTracker.API.Controllers.TaskControllers
                                 UpdateTaskCommandHandler updateTask, 
                                 DeleteTaskCommandHandler deleteTask,
                                 GetTaskByIdQueryHandler getTaskById,
-                                GetAllTasksQueryHandler getAllTasks) : ControllerBase
+                                GetAllTasksQueryHandler getAllTasks,
+                                GetPriorityQueryHandler getPriorities,
+                                GetStatesQueryHandler getStates) : ControllerBase
     {
         private readonly CreateTaskCommandHandler _createTask = createTask;
         private readonly UpdateTaskCommandHandler _updateTask = updateTask;
         private readonly DeleteTaskCommandHandler _deleteTask = deleteTask;
         private readonly GetTaskByIdQueryHandler _getTaskById = getTaskById;
         private readonly GetAllTasksQueryHandler _getAllTasks = getAllTasks;
+        private readonly GetPriorityQueryHandler _getPriorities = getPriorities;
+        private readonly GetStatesQueryHandler _getStates = getStates;
 
-        [HttpPost]
+        [HttpPost("CreateTask")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
         {
             if (command == null)
@@ -32,7 +37,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
             if (result.Success && createdId.HasValue)
             {
                 // CreatedAtAction ile oluşturulan kaynağın GetById endpoint'ine link veriyoruz.
-                return CreatedAtAction(nameof(GetTaskById), new { id = createdId.Value }, new { message = result.Message, id = createdId.Value });
+                return CreatedAtAction(nameof(GetTaskById), new { id = createdId.Value }, new { message = result.Message , result.Success });
             }
             else
             {
@@ -84,11 +89,41 @@ namespace TaskTracker.API.Controllers.TaskControllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("GetAllTasks")]
         public async Task<IActionResult> GetAllTasks()
         {
             var taskDtos = await _getAllTasks.HandleAsync(new GetAllTasksQuery());
             return Ok(taskDtos);
+        }
+
+        [HttpGet("priorities")]
+        public IActionResult GetPriorities()
+        {
+            try
+            {
+                var priorities = _getPriorities.Handle();
+                return Ok(priorities);
+            }
+            catch (Exception ex)
+            {
+                // Detaylı hata mesajı dönüşü (yalnızca geliştirme ortamında yapılmalı)
+                return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        [HttpGet("states")]
+        public IActionResult GetStates()
+        {
+            try
+            {
+                var states = _getStates.Handle();
+                return Ok(states);
+            }
+            catch (Exception ex)
+            {
+                // Detaylı hata mesajı dönüşü (yalnızca geliştirme ortamında yapılmalı)
+                return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
     }
 }

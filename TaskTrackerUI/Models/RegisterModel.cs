@@ -5,13 +5,16 @@ namespace TaskTrackerUI.Models
     public class RegisterModel
     {
         [Required(ErrorMessage = "İsim zorunludur")]
-        public string? FirstName { get; set; }
+        public string? Name { get; set; }
 
         [Required(ErrorMessage = "Soyisim zorunludur")]
-        public string? SurName { get; set; }
+        public string? Surname { get; set; }
 
         [Required, EmailAddress(ErrorMessage = "Geçerli bir e-posta giriniz")]
         public string? Email { get; set; }
+
+        [Required]
+        public string Username { get; set; } = default!;
 
         [Required]
         public string? Password { get; set; }

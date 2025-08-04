@@ -18,6 +18,10 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.User.Commands.Handlers
             if (exists)
                 return (OperationResult.Fail("Bu e-posta adresi zaten kayıtlı."), Guid.Empty);
 
+            var usernameExists = await _userRepository.GetByUsernameAsync(command.Username);
+            if (usernameExists != null)
+                return (OperationResult.Fail("Bu kullanıcı adı zaten alınmış."), Guid.Empty);
+
             var hashedPassword = _passwordHasher.HashPassword(command.Password);
 
             var user = new Users(

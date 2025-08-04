@@ -4,9 +4,10 @@ namespace TaskTracker.Domain.ValueObjects
 {
     public sealed class Priority : ValueObject
     {
-        public static readonly Priority Low = new("Low", 1);
-        public static readonly Priority Medium = new("Medium", 2);
-        public static readonly Priority High = new("High", 3);
+        public static readonly Priority Low = new("Düşük", 1);
+        public static readonly Priority Medium = new("Orta", 2);
+        public static readonly Priority High = new("Yüksek", 3);
+        public static readonly Priority VeryHigh = new("Acil", 4);
 
         public string Name { get; }
         public int Level { get; }
@@ -32,6 +33,7 @@ namespace TaskTracker.Domain.ValueObjects
                 "low" => Low,
                 "medium" => Medium,
                 "high" => High,
+                "veryhigh" => VeryHigh,
                 _ => throw new ArgumentException($"Unknown priority: {name}")
             };
         }
@@ -43,6 +45,7 @@ namespace TaskTracker.Domain.ValueObjects
                 1 => Low,
                 2 => Medium,
                 3 => High,
+                4 => VeryHigh,
                 _ => throw new ArgumentException("Invalid priority level", nameof(level))
             };
         }

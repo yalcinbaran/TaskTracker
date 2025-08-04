@@ -1,0 +1,40 @@
+﻿@page "/tasks"
+@using TaskTracker.Shared.Common
+@inject ITaskService _taskService
+@inject AppMessageState _appMessageState
+@inject ISnackbar Snackbar
+
+@if (tasks == null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (!tasks.Any())
+{
+    <p>Henüz görev yok.</p>
+}
+else
+{
+    <MudList T="TaskItemDTO">
+        @foreach (var task in tasks)
+        {
+            <MudListItem>
+                <MudText Typo="Typo.subtitle1">@task.Title</MudText>
+                <MudText Typo="Typo.body2">@task.Description</MudText>
+            </MudListItem>
+        }
+    </MudList>
+}
+
+@code {
+    private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
+        {
+            Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
+            _appMessageState.SnackbarMessage = null; // tekrar göstermesin diye sıfırla
+        }
+        tasks = await _taskService.GetAllTasksAsync();
+    }
+}

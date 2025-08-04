@@ -8,11 +8,11 @@ namespace TaskTracker.SharedKernel.Common
         public string Message { get; set; } = string.Empty;
         public T? Data { get; set; }
 
-
         public ApiResponse()
         {
             
         }
+
         private ApiResponse(bool success, string message, T? data)
         {
             Success = success;

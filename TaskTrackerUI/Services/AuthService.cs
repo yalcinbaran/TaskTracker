@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using TaskTracker.SharedKernel.Common;
+﻿using TaskTracker.SharedKernel.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
 
@@ -15,8 +14,8 @@ namespace TaskTrackerUI.Services
             var response = await client.PostAsJsonAsync("api/User/login", login);
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadAsStringAsync();
-                return ApiResponse<T>.FailResponse($"Sunucu hatası: {response.StatusCode} - {message}");
+                var message = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
+                return ApiResponse<T>.FailResponse(message!.Message);
             }
             var content = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
             if (content is null)
@@ -46,11 +45,11 @@ namespace TaskTrackerUI.Services
         public async Task<ApiResponse<T>> RegisterAsync<T>(RegisterModel register)
         {
             var client = _httpClient.CreateClient("ApiClient");
-            var response = await client.PostAsJsonAsync("api/User/register", register);
+            var response = await client.PostAsJsonAsync("api/User/CreateUser", register);
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadAsStringAsync();
-                return ApiResponse<T>.FailResponse($"Sunucu hatası: {response.StatusCode} - {message}");
+                var message = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
+                return ApiResponse<T>.FailResponse(message!.Message);
             }
             var content = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
             if (content is null)

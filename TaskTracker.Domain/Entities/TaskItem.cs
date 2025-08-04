@@ -19,9 +19,10 @@ namespace TaskTracker.Domain.Entities
         {
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Görev başlığı boş olamaz.", nameof(title));
-            if (dueDate < DateTime.UtcNow)
+            if (dueDate.Date < DateTime.UtcNow.Date)
                 throw new ArgumentException("Teslim tarihi geçmiş bir görev oluşturulamaz.", nameof(dueDate));
-            if(description is null)
+
+            if (description is null)
                 throw new ArgumentNullException(nameof(description), "Görev açıklaması boş olamaz.");
             if(title.Length > 100)
                 throw new ArgumentException("Görev başlığı 200 karakterden uzun olamaz.", nameof(title));

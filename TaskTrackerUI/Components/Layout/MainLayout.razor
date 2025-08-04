@@ -1,6 +1,21 @@
 ﻿@inherits LayoutComponentBase
+@inject IUserSessionService _userSessionService
 
-@Body
+
+<MudAppBar Color="Color.Primary" Fixed="false">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => _isOpened = !_isOpened)" />
+</MudAppBar>
+
+<MudDrawerContainer>
+    <MudDrawer @bind-Open="@_isOpened" Width="250px" Fixed="false" Anchor="Anchor.Start" Elevation="0">
+        <NavBar />
+    </MudDrawer>
+    <div class="d-flex justify-center align-center mud-height-full">
+        <CascadingValue TValue="UserSession" Value="_userSession">
+            @Body
+        </CascadingValue>
+    </div>
+</MudDrawerContainer>
 
 @* Required *@
 <MudThemeProvider />
@@ -17,3 +32,12 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+@code {
+    private UserSession? _userSession;
+    private bool _isOpened = true;
+
+    protected override void OnInitialized()
+    {
+        _userSession = _userSessionService.CurrentSession;
+    }
+}

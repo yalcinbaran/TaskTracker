@@ -21,20 +21,28 @@ namespace TaskTracker.API.Controllers.UserControllers
         private readonly UpdateUserCommandHandler _updateUser = updateUser;
         private readonly LoginCommandHandler _login = login;
 
-        [HttpPost]
+        [HttpPost("CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command)
         {
             if (command == null)
-                return BadRequest("Geçersiz istek.");
+                return BadRequest(ApiResponse<string>.FailResponse("Geçersiz istek."));
+
             var (result, createdId) = await _createUser.HandleAsync(command);
+
             if (result.Success && createdId != Guid.Empty)
             {
-                return CreatedAtAction(nameof(GetUserById), new { id = createdId }, new { message = result.Message, id = createdId });
+                var dto = new UserDTO
+                {
+                    Id = createdId,
+                    Name = command.Name,
+                    Surname = command.Surname,
+                    Username = command.Username,
+                    Email = command.Email
+                };
+                return CreatedAtAction(nameof(GetUserById), new { id = createdId }, ApiResponse<UserDTO>.SuccessResponse(dto, "Kullanıcı oluşturuldu."));
             }
-            else
-            {
-                return BadRequest(new { message = result.Message });
-            }
+
+            return BadRequest(ApiResponse<string>.FailResponse(result.Message!));
         }
 
         [HttpDelete("{id:guid}")]

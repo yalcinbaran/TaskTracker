@@ -25,7 +25,7 @@ namespace TaskTracker.Infrastructure.Persistence
             modelBuilder.Entity<TaskItem>(task =>
             {
                 task.HasKey(t => t.Id);
-                task.Property(t => t.Title).IsRequired().HasMaxLength(200);
+                task.Property(t => t.Title).IsRequired().HasMaxLength(100);
                 task.Property(t => t.Description).HasMaxLength(1000);
 
                 // Kullanıcı ve görev ilişkisi
