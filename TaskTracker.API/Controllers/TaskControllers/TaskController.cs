@@ -3,9 +3,9 @@ using TaskTracker.Application.CommandsQueriesHandlers.Tasks;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.Tasks.Commands;
-using TaskTracker.Application.Tasks.Commands.Handlers;
 using TaskTracker.Application.Tasks.Queries;
 using TaskTracker.Application.Tasks.Queries.Handlers;
+using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.API.Controllers.TaskControllers
 {
@@ -59,18 +59,31 @@ namespace TaskTracker.API.Controllers.TaskControllers
                 return BadRequest(new { message = result.Message });
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("DeleteTask/{id:guid}")]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
             if (id == Guid.Empty)
-                return BadRequest("Geçersiz Id.");
+            {
+                var fail = TaskDeleteResult.Fail(id, "Geçersiz görev ID.");
+                return BadRequest(new ApiResponse<TaskDeleteResult>
+                {
+                    Success = false,
+                    Message = fail.ErrorMessage!,
+                    Data = fail
+                });
+            }
+
             var command = new DeleteTaskCommand { Id = id };
             var result = await _deleteTask.HandleAsync(command);
 
-            if (result.IsSuccess)
-                return Ok(new { message = result.Message });
-            else
-                return BadRequest(new { message = result.Message });
+            var response = new ApiResponse<TaskDeleteResult>
+            {
+                Success = result.Success,
+                Message = result.Success ? "Görev başarıyla silindi." : result.ErrorMessage!,
+                Data = result
+            };
+
+            return result.Success ? Ok(response) : BadRequest(response);
         }
 
         [HttpGet("{id:guid}")]

@@ -61,6 +61,11 @@
             Snackbar.Add("Lütfen tüm alanları doldurun!", Severity.Error);
             return;
         }
+        if (createTaskModel.DueDate < DateTime.Today)
+        {
+            Snackbar.Add("Lütfen bir teslim tarihi seçin.", Severity.Error);
+            return;
+        }
         if (createTaskModel != null)
         {
             var response = await _taskService.CreateTaskAsync(createTaskModel);

@@ -1,4 +1,5 @@
-﻿using TaskTracker.Shared.Common;
+﻿using MudBlazor;
+using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
@@ -29,6 +30,23 @@ namespace TaskTrackerUI.Services
             }
         }
 
+        public async Task<ApiResponse<TaskDeleteResult>> DeleteTaskAsync(Guid id)
+        {
+            ArgumentException.ThrowIfNullOrEmpty(id.ToString(), nameof(id));
+            var client = _httpClient.CreateClient("ApiClient");
+            var response = await client.DeleteAsync($"api/Task/DeleteTask/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<TaskDeleteResult>>();
+                return result!;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error creating task: {response.ReasonPhrase}, Details: {error}");
+            }
+        }
 
         public Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync()
         {

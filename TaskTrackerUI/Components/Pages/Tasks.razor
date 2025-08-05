@@ -1,5 +1,4 @@
 ﻿@page "/tasks"
-@using TaskTracker.Shared.Common
 @inject ITaskService _taskService
 @inject AppMessageState _appMessageState
 @inject ISnackbar Snackbar
@@ -14,38 +13,83 @@ else if (!tasks.Any())
 }
 else
 {
-    <MudGrid >
-        <MudItem xs="12">
-            <MudText Typo="Typo.h5">Görev Listesi</MudText>
-        </MudItem>
-        <MudItem xs="12">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/tasks/create">Yeni Görev Ekle</MudButton>
-        </MudItem>
-    </MudGrid>
-
-
-
-    <MudList T="TaskItemDTO">
-        @foreach (var task in tasks)
-        {
-            <MudListItem>
-                <MudText Typo="Typo.subtitle1">@task.Title</MudText>
-                <MudText Typo="Typo.body2">@task.Description</MudText>
-            </MudListItem>
-        }
-    </MudList>
+    <div style="display: flex; flex-direction: column;margin-top: 50px;">
+        <div style="display: flex; flex-direction:row; justify-content:end">
+            <MudButton Color="Color.Error" Disabled="@_isSilDisabled" OnClick="Delete">Sil</MudButton>
+        </div>
+        <div style="display: flex; flex-direction:row;">
+            <MudDataGrid @ref="@Grid" Items="@tasks" T="TaskItemDTO" Style="margin-top: 20px; width: 1200px" MultiSelection="true" ColumnResizeMode="ResizeMode.Column" SelectedItemChanged="GridSelectionChanged">
+                <Columns>
+                    <SelectColumn T="TaskItemDTO" ShowInHeader="false" />
+                    <PropertyColumn Property="x => x.Title" Title="Başlık" />
+                    <PropertyColumn Property="x => x.Description" Title="Açıklama" />
+                    <PropertyColumn Property="x => x.PriorityName" Title="Öncelik" />
+                    <PropertyColumn Property="x => x.TaskStateName" Title="Durumu" />
+                    <PropertyColumn Property="x => x.DueDate" Title="Teslim Tarihi" Format="dd.MM.yyyy" />
+                </Columns>
+            </MudDataGrid>
+        </div>
+    </div>
 }
 
 @code {
+    MudDataGrid<TaskItemDTO>? Grid;
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
+    List<Guid> selectedRowsIds = [];
+    private bool _isSilDisabled = true;
 
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
         {
             Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
-            _appMessageState.SnackbarMessage = null; // tekrar göstermesin diye sıfırla
+            _appMessageState.SnackbarMessage = null;
         }
         tasks = await _taskService.GetAllTasksAsync();
+    }
+
+    void GridSelectionChanged()
+    {
+        selectedRowsIds.Clear();
+        foreach (var item in Grid!.SelectedItems)
+        {
+            selectedRowsIds.Add(item.Id);
+        }
+        _isSilDisabled = selectedRowsIds.Count() > 0 ? false : true;
+    }
+
+    async Task Delete()
+    {
+        _isSilDisabled = true;
+        if (selectedRowsIds.Count() > 0)
+        {
+            if (selectedRowsIds.Count() == 1)
+            {
+                try
+                {
+                    var response = await _taskService.DeleteTaskAsync(selectedRowsIds[0]);
+
+                    if (response.Success)
+                    {
+                        Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
+                        tasks = await _taskService.GetAllTasksAsync();
+                        Grid!.SelectedItems.Clear();
+                    }
+                    else
+                    {
+                        Snackbar.Add(response.Data?.ErrorMessage ?? response.Message ?? "Silme işlemi başarısız", Severity.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Snackbar.Add($"Hata: {ex.Message}", Severity.Error);
+                }
+            }
+        }
+        else
+        {
+            Snackbar.Add("Silinecek görev seçilmedi.", Severity.Warning);
+        }
+        _isSilDisabled = false;
     }
 }

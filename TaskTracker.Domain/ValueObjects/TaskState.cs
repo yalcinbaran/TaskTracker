@@ -5,7 +5,7 @@ namespace TaskTracker.Domain.ValueObjects
     public sealed class TaskState : ValueObject
     {
         public static readonly TaskState Cancelled = new("İptal edildi", 1);
-        public static readonly TaskState Pending = new("Askıda", 2);
+        public static readonly TaskState Pending = new("Beklemede", 2);
         public static readonly TaskState InProgress = new("Devam ediyor", 3);
         public static readonly TaskState Completed = new("Tamamlandı", 4);
 
@@ -26,11 +26,10 @@ namespace TaskTracker.Domain.ValueObjects
         {
             return name.ToLower() switch
             {
-                "cancelled" => Cancelled,
-                "pending" => Pending,
-                "inprogress" => InProgress,
-                "completed" => Completed,
                 "İptal edildi" => Cancelled,
+                "Beklemede" => Pending,
+                "Devam ediyor" => InProgress,
+                "Tamamlandı" => Completed,
                 _ => throw new ArgumentException($"Invalid task state: {name}")
             };
         }
