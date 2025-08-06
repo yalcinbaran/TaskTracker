@@ -1,5 +1,4 @@
-﻿using TaskTracker.Application.CommandsQueriesHandlers.DTOs;
-using TaskTracker.Application.Mappings;
+﻿using TaskTracker.Application.Mappings;
 using TaskTracker.Application.Tasks.Queries;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Shared.Common;

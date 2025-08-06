@@ -1,6 +1,6 @@
-﻿using TaskTracker.Application.CommandsQueriesHandlers.DTOs;
-using TaskTracker.Application.Tasks.Commands;
+﻿using TaskTracker.Application.Tasks.Commands;
 using TaskTracker.Domain.Interfaces;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers
 {
@@ -13,9 +13,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
         public async Task<BulkDeleteResult> HandleAsync(BulkDeleteTasksCommand command)
         {
             if (command.TaskIds == null || command.TaskIds.Count == 0)
-            {
                 return BulkDeleteResult.Ok(0, 0);
-            }
 
             var deleteResults = await _taskRepository.DeleteRangeAsync(command.TaskIds);
 
@@ -24,18 +22,15 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
                 .Select(r => new FailedTaskInfo(
                     r.TaskId,
                     r.TaskTitle,
-                    $"Bir hata meydana geldi: {r.ErrorMessage}" ?? "Bilinmeyen hata",
+                    !string.IsNullOrWhiteSpace(r.ErrorMessage)
+                        ? $"Bir hata meydana geldi: {r.ErrorMessage}"
+                        : "Bilinmeyen hata",
                     r.DueDate))
                 .ToList();
 
-            var totalDeleted = deleteResults.Count(r => r.Success);
-
-            if (failedTasks.Count != 0)
-            {
-                return BulkDeleteResult.Fail(command.TaskIds.Count, failedTasks);
-            }
-
-            return BulkDeleteResult.Ok(command.TaskIds.Count, totalDeleted);
+            return failedTasks.Count != 0
+                ? BulkDeleteResult.Fail(command.TaskIds.Count, failedTasks)
+                : BulkDeleteResult.Ok(command.TaskIds.Count, deleteResults.Count(r => r.Success));
         }
     }
 }

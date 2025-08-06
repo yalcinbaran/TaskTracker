@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers;
 using TaskTracker.Application.Tasks.Commands;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.API.Controllers.TaskControllers
 {
@@ -10,36 +11,28 @@ namespace TaskTracker.API.Controllers.TaskControllers
     {
         private readonly BulkDeleteTasksCommandHandler _bulkDelete = bulkDelete;
 
-        [HttpDelete("bulk-delete")]
+        [HttpPost("BulkDelete")]
         public async Task<IActionResult> BulkDelete([FromBody] List<Guid> taskIds)
         {
             if (taskIds == null || taskIds.Count == 0)
-                return BadRequest(new { error = "Geçersiz istek. Silinecek görev ID'leri boş olamaz." });
+                return BadRequest(ApiResponse<BulkDeleteResult>.FailResponse("Geçersiz istek. Silinecek görev ID'leri boş olamaz."));
 
             var command = new BulkDeleteTasksCommand { TaskIds = taskIds };
             var result = await _bulkDelete.HandleAsync(command);
 
-            if (result.TotalDeleted == 0)
+            if (result.IsTotalFailure)
             {
-                return BadRequest(new
-                {
-                    error = "Hiçbir görev silinemedi.",
-                    totalRequested = result.TotalRequested,
-                    totalDeleted = result.TotalDeleted,
-                    failedTasks = result.FailedTasks
-                });
+                return BadRequest(ApiResponse<BulkDeleteResult>.FailResponse("Hiçbir görev silinemedi.", result));
             }
 
-            // Bazı görevler silinemediyse ama bazıları silindiyse, yine de 200 OK döneriz.
-            return Ok(new
+            if (result.IsPartialSuccess)
             {
-                message = result.FailedTasks.Count != 0
-                    ? $"{result.TotalDeleted} görev silindi, {result.FailedTasks.Count} görev silinemedi."
-                    : $"{result.TotalDeleted} görev başarıyla silindi.",
-                totalRequested = result.TotalRequested,
-                totalDeleted = result.TotalDeleted,
-                failedTasks = result.FailedTasks.Count != 0 ? result.FailedTasks : null
-            });
+                return Ok(ApiResponse<BulkDeleteResult>.PartialSuccessResponse(result,
+                    $"{result.TotalDeleted} görev silindi, {result.FailedTasks.Count} görev silinemedi."));
+            }
+
+            return Ok(ApiResponse<BulkDeleteResult>.SuccessResponse(result, $"{result.TotalDeleted} görev başarıyla silindi."));
         }
+
     }
 }

@@ -1,30 +1,21 @@
-﻿using System.Text.Json.Serialization;
-
-namespace TaskTracker.SharedKernel.Common
+﻿namespace TaskTracker.Shared.Common
 {
     public class ApiResponse<T>
     {
         public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
+        public bool PartialSuccess { get; set; }
+        public string? Message { get; set; }
         public T? Data { get; set; }
+        public string? Error { get; set; }
 
-        public ApiResponse()
-        {
-            
-        }
+        public static ApiResponse<T> SuccessResponse(T data, string? message = null) =>
+            new() { Success = true, Data = data, Message = message };
 
-        private ApiResponse(bool success, string message, T? data)
-        {
-            Success = success;
-            Message = message;
-            Data = data;
-        }
+        public static ApiResponse<T> FailResponse(string error, T? data = default) =>
+            new() { Success = false, Error = error, Data = data };
 
-        public static ApiResponse<T> SuccessResponse(T data, string message) =>
-            new ApiResponse<T>(true, message, data);
-
-        public static ApiResponse<T> FailResponse(string message) =>
-            new ApiResponse<T>(false, message, default);
+        public static ApiResponse<T> PartialSuccessResponse(T data, string message) =>
+            new() { Success = true, PartialSuccess = true, Data = data, Message = message };
     }
 
 }

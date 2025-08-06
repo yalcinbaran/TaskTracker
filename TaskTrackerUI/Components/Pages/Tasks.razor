@@ -1,7 +1,7 @@
 ﻿@page "/tasks"
 @inject ITaskService _taskService
-@inject AppMessageState _appMessageState
 @inject ISnackbar Snackbar
+@inject AppMessageState _appMessageState
 
 @if (tasks == null)
 {
@@ -79,6 +79,39 @@ else
                     {
                         Snackbar.Add(response.Data?.ErrorMessage ?? response.Message ?? "Silme işlemi başarısız", Severity.Error);
                     }
+                    StateHasChanged();
+                }
+                catch (Exception ex)
+                {
+                    Snackbar.Add($"Hata: {ex.Message}", Severity.Error);
+                }
+            }
+            else
+            {
+                try
+                {
+                    var response = await _taskService.BulkDeleteAsync(selectedRowsIds);
+
+                    if (response.Success)
+                    {
+                        Snackbar.Add($"{response.Data!.TotalDeleted} görev silindi.", Severity.Success);
+                    }
+                    else if (response.PartialSuccess)
+                    {
+                        string failedTitles = string.Join("\n• ", response.Data!.FailedTasks.Select(ft => ft.TaskTitle));
+                        Snackbar.Add($"{response.Data.TotalDeleted} görev silindi, ancak {response.Data.FailedTasks.Count} görev silinemedi.\nSilinemeyen görevler:\n• {failedTitles}", Severity.Warning);
+                    }
+                    else
+                    {
+                        Snackbar.Add(response.Message ?? "Silme işlemi başarısız", Severity.Error);
+                    }
+
+                    if (response.Success || response.PartialSuccess)
+                    {
+                        tasks = await _taskService.GetAllTasksAsync();
+                    }
+                    Grid!.SelectedItems.Clear();
+                    StateHasChanged();
                 }
                 catch (Exception ex)
                 {

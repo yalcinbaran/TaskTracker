@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.Tasks.Commands;
 using TaskTracker.Application.Tasks.Commands.Handlers;
-using TaskTracker.Application.Tasks.Queries.Handlers;
 
 namespace TaskTracker.API.Controllers.TaskControllers
 {

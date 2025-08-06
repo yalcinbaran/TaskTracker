@@ -1,5 +1,6 @@
 ﻿using TaskTracker.Application.Auth;
 using TaskTracker.Domain.Interfaces;
+using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.User.Commands.Handlers

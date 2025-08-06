@@ -86,8 +86,7 @@ namespace TaskTracker.Infrastructure.Repository
 
             try
             {
-                _context.Remove(entity);
-                await _context.SaveChangesAsync();
+                await _context.TaskItems.Where(t => t.Id == id).ExecuteDeleteAsync();
                 return OperationResult.Ok("Görev başarıyla silindi");
             }
             catch (Exception ex)
@@ -108,9 +107,7 @@ namespace TaskTracker.Infrastructure.Repository
             {
                 try
                 {
-                    _context.Remove(entity);
-                    await _context.SaveChangesAsync();
-
+                    await _context.TaskItems.Where(t => t.Id == entity.Id).ExecuteDeleteAsync();
                     results.Add(new TaskDeleteResult(entity.Id, entity.Title!, entity.DueDate, true));
                 }
                 catch (Exception ex)

@@ -10,6 +10,13 @@ namespace TaskTrackerUI.Services
     {
         private readonly IHttpClientFactory _httpClient = httpClient;
 
+        public async Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync()
+        {
+            var client = _httpClient.CreateClient("ApiClient");
+            var result = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetAllTasks");
+            return result!;
+        }
+
         public async Task<ApiResponse<Guid?>> CreateTaskAsync(CreateTaskModel model)
         {
             ArgumentNullException.ThrowIfNull(model, nameof(model));
@@ -48,12 +55,21 @@ namespace TaskTrackerUI.Services
             }
         }
 
-        public Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync()
+        public async Task<ApiResponse<BulkDeleteResult>> BulkDeleteAsync(IEnumerable<Guid> ids)
         {
+            ArgumentNullException.ThrowIfNull(ids, nameof(ids));
             var client = _httpClient.CreateClient("ApiClient");
-#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
-            return client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetAllTasks");
-#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+            var response = await client.PostAsJsonAsync("api/TaskBulk/BulkDelete", ids);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<ApiResponse<BulkDeleteResult>>();
+                return result!;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error bulk deleting tasks: {response.ReasonPhrase}, Details: {error}");
+            }
         }
     }
 }

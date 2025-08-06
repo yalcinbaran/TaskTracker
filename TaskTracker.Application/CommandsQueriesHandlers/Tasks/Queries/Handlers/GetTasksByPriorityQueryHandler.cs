@@ -1,9 +1,8 @@
-﻿using TaskTracker.Application.CommandsQueriesHandlers.DTOs;
-using TaskTracker.Application.Mappings;
+﻿using TaskTracker.Application.Mappings;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Shared.Common;
 
-namespace TaskTracker.Application.Tasks.Queries.Handlers
+namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 {
     public class GetTasksByPriorityQueryHandler(ITaskRepository taskRepository, IUserRepository userRepository)
     {

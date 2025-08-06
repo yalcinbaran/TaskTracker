@@ -3,6 +3,7 @@ using TaskTracker.Application.CommandsQueriesHandlers.User.Commands;
 using TaskTracker.Application.CommandsQueriesHandlers.User.Commands.Handlers;
 using TaskTracker.Application.CommandsQueriesHandlers.User.Queries;
 using TaskTracker.Application.CommandsQueriesHandlers.User.Queries.Handlers;
+using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.API.Controllers.UserControllers
@@ -89,7 +90,7 @@ namespace TaskTracker.API.Controllers.UserControllers
 
             if (!response.Success || response.Data == null)
             {
-                return Unauthorized(ApiResponse<UserDTO>.FailResponse(response.Message));
+                return Unauthorized(ApiResponse<UserDTO>.FailResponse(response.Message!));
             }
 
             return Ok(ApiResponse<UserDTO>.SuccessResponse(response.Data, "Giriş başarılı."));
