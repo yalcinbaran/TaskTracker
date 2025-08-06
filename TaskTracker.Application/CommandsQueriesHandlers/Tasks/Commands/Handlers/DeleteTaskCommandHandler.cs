@@ -1,6 +1,6 @@
 ﻿using TaskTracker.Application.Tasks.Commands;
 using TaskTracker.Domain.Interfaces;
-using TaskTracker.SharedKernel.Common;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers
 {

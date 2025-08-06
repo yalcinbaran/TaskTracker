@@ -16,9 +16,6 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
             var task = await _taskRepository.GetByIdAsync(query.Id) ?? throw new KeyNotFoundException("Görev bulunamadı.");
             var dto = task.ToDto()!;
 
-            var user = await _userRepository.GetByIdAsync(task.UserId);
-            dto.User = user?.ToDto();
-
             return dto;
         }
     }

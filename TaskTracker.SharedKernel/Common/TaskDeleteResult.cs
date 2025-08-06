@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.SharedKernel.Common
+﻿namespace TaskTracker.Shared.Common
 {
     //Bu sınıf, silme işlemleri için kullanılacak. Eğer birden çok görev silinirken bazı görevler silinemiyorsa, bu sınıfın örneği oluşturulacak ve hata mesajı ile birlikte TaskId'si döndürülecek.
     public record TaskDeleteResult(Guid TaskId, string TaskTitle, DateTime DueDate, bool Success, string? ErrorMessage = null)

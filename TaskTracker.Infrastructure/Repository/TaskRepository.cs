@@ -3,7 +3,6 @@ using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Infrastructure.Persistence;
 using TaskTracker.Shared.Common;
-using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.Infrastructure.Repository
 {

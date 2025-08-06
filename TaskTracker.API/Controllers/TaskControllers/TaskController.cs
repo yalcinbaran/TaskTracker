@@ -5,7 +5,6 @@ using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers;
 using TaskTracker.Application.Tasks.Commands;
 using TaskTracker.Application.Tasks.Queries;
 using TaskTracker.Shared.Common;
-using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.API.Controllers.TaskControllers
 {

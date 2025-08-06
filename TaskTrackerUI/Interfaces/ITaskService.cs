@@ -1,5 +1,4 @@
 ﻿using TaskTracker.Shared.Common;
-using TaskTracker.SharedKernel.Common;
 using TaskTrackerUI.Models;
 
 namespace TaskTrackerUI.Interfaces

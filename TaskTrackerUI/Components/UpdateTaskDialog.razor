@@ -54,7 +54,7 @@
     {
         var updateTask = new UpdateTaskModel
         {
-            Id = Task.Id,
+            Id = Task!.Id,
             Description = Task.Description,
             DueDate = Task.DueDate,
             PriorityLevel = GetPriorityLevelFromName(Task.PriorityName),
