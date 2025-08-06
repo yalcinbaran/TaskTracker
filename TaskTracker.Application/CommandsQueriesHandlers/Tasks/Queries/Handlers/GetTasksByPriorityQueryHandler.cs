@@ -17,8 +17,6 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
             foreach (var task in tasks)
             {
                 var dto = task.ToDto()!;
-                var user = await _userRepository.GetByIdAsync(task.UserId);
-                dto.User = user?.ToDto();
                 dtos.Add(dto);
             }
 

@@ -228,7 +228,7 @@ else
         var dialogReference = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
         var dialogResult = await dialogReference.Result;
 
-        if (!dialogResult.Canceled)
+        if (!dialogResult!.Canceled)
         {
             var response = dialogResult.Data as ApiResponse<OperationResult>;
             if (response?.Success == true)

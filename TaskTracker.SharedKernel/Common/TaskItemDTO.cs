@@ -14,6 +14,5 @@
         public string? TaskStateName { get; set; }
 
         public Guid UserId { get; set; }
-        public UserDTO? User { get; set; }
     }
 }
