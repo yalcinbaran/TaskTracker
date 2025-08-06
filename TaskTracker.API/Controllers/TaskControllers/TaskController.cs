@@ -16,6 +16,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
                                 DeleteTaskCommandHandler deleteTask,
                                 GetTaskByIdQueryHandler getTaskById,
                                 GetAllTasksQueryHandler getAllTasks,
+                                GetActiveTasksQueryHandler getActiveTasks,
                                 GetPriorityQueryHandler getPriorities,
                                 GetStatesQueryHandler getStates,
                                 GetTasksByStateQueryHandler getTasksByState) : ControllerBase
@@ -25,6 +26,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
         private readonly DeleteTaskCommandHandler _deleteTask = deleteTask;
         private readonly GetTaskByIdQueryHandler _getTaskById = getTaskById;
         private readonly GetAllTasksQueryHandler _getAllTasks = getAllTasks;
+        private readonly GetActiveTasksQueryHandler _getActiveTasks = getActiveTasks;
         private readonly GetPriorityQueryHandler _getPriorities = getPriorities;
         private readonly GetStatesQueryHandler _getStates = getStates;
         private readonly GetTasksByStateQueryHandler _getTasksByState = getTasksByState;
@@ -110,6 +112,13 @@ namespace TaskTracker.API.Controllers.TaskControllers
         public async Task<IActionResult> GetAllTasks()
         {
             var taskDtos = await _getAllTasks.HandleAsync(new GetAllTasksQuery());
+            return Ok(taskDtos);
+        }
+
+        [HttpGet("GetActiveTasks")]
+        public async Task<IActionResult> GetActiveTasks([FromQuery] DateTime date)
+        {
+            var taskDtos = await _getActiveTasks.HandleAsync(new GetActiveTasksQuery() { DueDate = date });
             return Ok(taskDtos);
         }
 

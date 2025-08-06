@@ -1,4 +1,6 @@
-﻿using TaskTracker.Shared.Common;
+﻿using System.Net.Http.Json;
+using System.Reflection;
+using TaskTracker.Shared.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
 
@@ -80,6 +82,8 @@ namespace TaskTrackerUI.Services
             return response == null ? throw new HttpRequestException($"No tasks found for state level {stateLevel}") : response!;
         }
 
+
+
         public async Task<ApiResponse<OperationResult>> UpdateTaskAsync(UpdateTaskModel model)
         {
             ArgumentNullException.ThrowIfNull(model);
@@ -100,6 +104,24 @@ namespace TaskTrackerUI.Services
             };
 
             return apiResponse;
+        }
+
+        public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync(DateTime date)
+        {
+            ArgumentNullException.ThrowIfNull(date);
+
+            var client = _httpClient.CreateClient("ApiClient");
+
+            var dateString = date.ToString("yyyy-MM-dd");
+
+            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/GetActiveTasks?date={dateString}");
+
+            return response!;
+        }
+
+        public Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date)
+        {
+            throw new NotImplementedException();
         }
     }
 }

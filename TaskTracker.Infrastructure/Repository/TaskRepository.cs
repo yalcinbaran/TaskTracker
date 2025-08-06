@@ -45,6 +45,11 @@ namespace TaskTracker.Infrastructure.Repository
             return await _context.TaskItems.Where(t => t.DueDate.Date < date.Date).AsNoTracking().ToListAsync();
         }
 
+        public async Task<IEnumerable<TaskItem>> GetAllActiveTasks(DateTime date)
+        {
+            return await _context.TaskItems.Where(t => t.DueDate.Date >= date.Date).AsNoTracking().ToListAsync();
+        }
+
         public async Task<(OperationResult Result, Guid UpdatedId)> UpdateAsync(TaskItem task)
         {
             try
