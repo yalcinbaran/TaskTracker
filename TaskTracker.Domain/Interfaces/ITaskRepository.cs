@@ -7,9 +7,7 @@ namespace TaskTracker.Domain.Interfaces
     {
         Task<(OperationResult Result, Guid CreatedId)> AddAsync(TaskItem task);
         Task<TaskItem?> GetByIdAsync(Guid id);
-        Task<IEnumerable<TaskItem>> GetTasksByPriorityAsync(int priorityLevel);
         Task<IEnumerable<TaskItem>> GetTasksByStateAsync(int taskStateLevel);
-        Task<IEnumerable<TaskItem>> GetTasksBySerachQuery(string serachQuery);
         Task<IEnumerable<TaskItem>> GetAllAsync();
         Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date);
         Task<(OperationResult Result, Guid UpdatedId)> UpdateAsync(TaskItem task);

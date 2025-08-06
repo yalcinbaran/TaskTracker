@@ -35,19 +35,9 @@ namespace TaskTracker.Infrastructure.Repository
             return await _context.TaskItems.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetTasksByPriorityAsync(int priorityLevel)
-        {
-            return await _context.TaskItems.Where(t => t.Priority!.Level == priorityLevel).AsNoTracking().ToListAsync();
-        }
-
         public async Task<IEnumerable<TaskItem>> GetTasksByStateAsync(int taskStateLevel)
         {
             return await _context.TaskItems.Where(t => t.TaskState!.Level == taskStateLevel).AsNoTracking().ToListAsync();
-        }
-
-        public async Task<IEnumerable<TaskItem>> GetTasksBySerachQuery(string serachQuery)
-        {
-            return await _context.TaskItems.Where(t => t.Title!.Contains(serachQuery) || t.Description!.Contains(serachQuery)).AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date)

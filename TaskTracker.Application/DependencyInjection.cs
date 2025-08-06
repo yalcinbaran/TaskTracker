@@ -18,7 +18,6 @@ namespace TaskTracker.Application
             services.AddScoped<GetAllTasksQueryHandler>();
             services.AddScoped<GetOverdueTasksQueryHandler>();
             services.AddScoped<GetTaskByIdQueryHandler>(); 
-            services.AddScoped<GetTasksByPriorityQueryHandler>(); 
             services.AddScoped<GetTasksByStateQueryHandler>(); 
             services.AddScoped<CreateUserCommandHandler>();
             services.AddScoped<LoginCommandHandler>();

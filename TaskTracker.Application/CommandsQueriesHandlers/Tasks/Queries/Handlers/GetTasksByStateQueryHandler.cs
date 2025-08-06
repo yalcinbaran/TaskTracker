@@ -4,10 +4,9 @@ using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 {
-    public class GetTasksByStateQueryHandler(ITaskRepository taskRepository, IUserRepository userRepository)
+    public class GetTasksByStateQueryHandler(ITaskRepository taskRepository)
     {
         private readonly ITaskRepository _taskRepository = taskRepository;
-        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task<IEnumerable<TaskItemDTO>> HandleAsync(GetTasksByStateQuery query)
         {
