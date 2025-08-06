@@ -1,6 +1,4 @@
-﻿using MudBlazor;
-using System.Net.Http.Json;
-using TaskTracker.Shared.Common;
+﻿using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
@@ -83,7 +81,7 @@ namespace TaskTrackerUI.Services
             return response == null ? throw new HttpRequestException($"No tasks found for state level {stateLevel}") : response!;
         }
 
-        public async Task<string> UpdateTaskAsync(TaskModel model)
+        public async Task<ApiResponse<OperationResult>> UpdateTaskAsync(UpdateTaskModel model)
         {
             ArgumentNullException.ThrowIfNull(model);
 
@@ -91,12 +89,18 @@ namespace TaskTrackerUI.Services
 
             var response = await client.PutAsJsonAsync("api/Task/UpdateTask", model);
 
-            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            var operationResult = await response.Content.ReadFromJsonAsync<OperationResult>();
 
-            if (response.IsSuccessStatusCode)
-                return result?["message"] ?? "Güncelleme başarılı fakat mesaj alınamadı.";
+            var apiResponse = new ApiResponse<OperationResult>
+            {
+                Success = response.IsSuccessStatusCode,
+                Message = operationResult?.Message ?? (response.IsSuccessStatusCode
+                    ? "Görev başarıyla güncellendi."
+                    : "Görev güncellenemedi."),
+                Data = operationResult ?? OperationResult.Fail("Bilinmeyen hata.")
+            };
 
-            throw new ApplicationException(result?["message"] ?? "Görev güncellenemedi.");
+            return apiResponse;
         }
     }
 }

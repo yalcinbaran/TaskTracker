@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskTracker.Application.Auth;
-using TaskTracker.SharedKernel.Common;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Domain.ValueObjects;
 using TaskTracker.Infrastructure.Persistence;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Infrastructure.Repository
 {

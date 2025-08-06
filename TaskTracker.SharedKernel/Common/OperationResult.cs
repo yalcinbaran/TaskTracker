@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.SharedKernel.Common
+﻿namespace TaskTracker.Shared.Common
 {
     public record OperationResult(bool Success, string? Message = null, string? ErrorCode = null)
     {

@@ -52,13 +52,14 @@ namespace TaskTracker.API.Controllers.TaskControllers
         public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskCommand command)
         {
             if (command == null)
-                return BadRequest("Geçersiz istek.");
+                return BadRequest(OperationResult.Fail("Geçersiz istek."));
 
             var result = await _updateTask.HandleAsync(command);
+
             if (result.IsSuccess)
-                return Ok(new { message = result.Message });
+                return Ok(result);
             else
-                return BadRequest(new { message = result.Message });
+                return BadRequest(result);
         }
 
         [HttpDelete("DeleteTask/{id:guid}")]

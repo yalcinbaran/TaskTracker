@@ -1,50 +1,85 @@
 ﻿@inject IDialogService DialogService
-@inject IDialogReference DialogReference
 @inject ITaskApiService _taskApiService
-
-@code {
-    [Parameter] public TaskItemDTO Task { get; set; } = default!;
-}
+@inject ITaskService _taskService
 
 <MudDialog>
     <DialogContent>
         <MudForm Model="@Task">
-            <MudTextField Label="Görev Başlığı" @bind-Value="Task.Title" />
+            <MudTextField Label="Görev Başlığı" @bind-Value="Task!.Title" Disabled=true />
             <MudTextField Label="Açıklama" @bind-Value="Task.Description" />
 
             <MudSelect T="string" Label="Öncelik" @bind-Value="Task.PriorityName">
-                @foreach (var priority in _taskApiService.GetPrioritiesAsync().Result)
+                @foreach (var priority in Priorities)
                 {
                     <MudSelectItem Value="@priority.Name">@priority.Name</MudSelectItem>
                 }
             </MudSelect>
 
             <MudSelect T="string" Label="Durum" @bind-Value="Task.TaskStateName">
-                @foreach (var state in _taskApiService.GetStatesAsync().Result)
+                @foreach (var state in States)
                 {
                     <MudSelectItem Value="@state.Name">@state.Name</MudSelectItem>
                 }
             </MudSelect>
 
-            <MudDatePicker @bind-Value="Task.DueDate" DateFormat="dd.MM.yyyy" />
+            <MudDatePicker Label="Teslim Tarihi"
+                           Date="Task.DueDate"
+                           DateChanged="@(date => Task.DueDate = date!.Value)"
+                           DateFormat="dd.MM.yyyy"
+                           PickerVariant="PickerVariant.Inline"
+                           MinDate="@dateTime" />
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Update">Güncelle</MudButton>
+        <MudButton Color="Color.Primary" OnClick="@(async () => await Update())">Güncelle</MudButton>
         <MudButton OnClick="Cancel">İptal</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-    private void Update()
-    {
-        // Update işlemini tetikle
-        DialogReference.Close(DialogResult.Ok(Task));
+    private List<PriorityDto> Priorities = [];
+    private List<StateDto> States = [];
+    [CascadingParameter]
+    public IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public TaskItemDTO? Task { get; set; } = new TaskItemDTO();
+    private DateTime dateTime = DateTime.Today;
 
+    protected override async Task OnInitializedAsync()
+    {
+        Priorities = (await _taskApiService.GetPrioritiesAsync()).ToList();
+        States = (await _taskApiService.GetStatesAsync()).ToList();
+    }
+
+    private async Task Update()
+    {
+        var updateTask = new UpdateTaskModel
+        {
+            Id = Task.Id,
+            Description = Task.Description,
+            DueDate = Task.DueDate,
+            PriorityLevel = GetPriorityLevelFromName(Task.PriorityName),
+            TaskStateLevel = GetStateLevelFromName(Task.TaskStateName),
+            UserId = Task.UserId,
+        };
+        var response = await _taskService.UpdateTaskAsync(updateTask);
+
+        // Dialogu kapat ve sonucu dön
+        MudDialog!.Close(DialogResult.Ok(response));
     }
 
     private void Cancel()
     {
-        DialogReference.Close(DialogResult.Cancel());
+        MudDialog!.Cancel();
+    }
+
+
+    private int GetPriorityLevelFromName(string? name)
+    {
+        return Priorities.FirstOrDefault(p => p.Name == name)?.Level ?? 0;
+    }
+
+    private int GetStateLevelFromName(string? name)
+    {
+        return States.FirstOrDefault(s => s.Name == name)?.Level ?? 0;
     }
 }

@@ -11,6 +11,6 @@ namespace TaskTrackerUI.Interfaces
         Task<ApiResponse<Guid?>> CreateTaskAsync(TaskModel model);
         Task<ApiResponse<TaskDeleteResult>> DeleteTaskAsync(Guid id);
         Task<ApiResponse<BulkDeleteResult>> BulkDeleteAsync(IEnumerable<Guid> ids);
-        Task<ApiResponse<OperationResult>> UpdateTaskAsync(TaskModel model);
+        Task<ApiResponse<OperationResult>> UpdateTaskAsync(UpdateTaskModel model);
     }
 }

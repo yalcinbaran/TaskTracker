@@ -1,6 +1,6 @@
-﻿using TaskTracker.SharedKernel.Common;
-using TaskTracker.Domain.Interfaces;
+﻿using TaskTracker.Domain.Interfaces;
 using TaskTracker.Domain.ValueObjects;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.Tasks.Commands.Handlers
 {

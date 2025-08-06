@@ -36,13 +36,13 @@ namespace TaskTracker.Domain.Entities
             UserId = userId;
         }
 
-        public void Update(string title, string description, DateTime dueDate, Priority priority, TaskState state)
+        public void Update(string description, DateTime dueDate, Priority priority, TaskState state, Guid userId)
         {
-            Title = title;
             Description = description;
             DueDate = dueDate;
             Priority = priority;
             TaskState = state;
+            UserId = userId;
         }
 
         public void ChangePriority(Priority newPriority)

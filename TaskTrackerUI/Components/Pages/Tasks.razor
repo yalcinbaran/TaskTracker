@@ -82,6 +82,7 @@ else
 @code {
     MudDataGrid<TaskItemDTO>? Grid;
     private IEnumerable<StateDto> States = new List<StateDto>();
+    private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
     List<Guid> selectedRowsIds = [];
     private bool _isDeleteDisabled = true;
@@ -101,6 +102,7 @@ else
             _appMessageState.SnackbarMessage = null;
         }
         States = await _taskApiService.GetStatesAsync();
+        Priorities = await _taskApiService.GetPrioritiesAsync();
         States = States.Append(new StateDto { Level = 0, Name = "Tümü" });
         await StateSelectionChanged(0);
     }
@@ -220,23 +222,41 @@ else
 
     private async Task OpenUpdateDialog()
     {
-        var parameters = new DialogParameters
-        {
-            ["Task"] = itemToUpdate
-        };
+        var parameters = new DialogParameters { ["Task"] = itemToUpdate };
+        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small, FullWidth = true };
 
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true
-        };
+        var dialogReference = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
+        var dialogResult = await dialogReference.Result;
 
-        var dialogresult = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
-        if (!dialogresult.Result.Result!.Canceled)
+        if (!dialogResult.Canceled)
         {
-            
+            var response = dialogResult.Data as ApiResponse<OperationResult>;
+            if (response?.Success == true)
+            {
+                Snackbar.Add("Görev başarıyla güncellendi.", Severity.Success);
+                tasks = await _taskService.GetAllTasksAsync();
+                Grid!.SelectedItems.Clear();
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add(response?.Message ?? "Güncelleme başarısız.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("İşlem iptal edildi.", Severity.Info);
         }
     }
 
+
+    private int GetPriorityLevelFromName(string? name)
+    {
+        return Priorities.FirstOrDefault(p => p.Name == name)?.Level ?? 0;
+    }
+
+    private int GetStateLevelFromName(string? name)
+    {
+        return States.FirstOrDefault(s => s.Name == name)?.Level ?? 0;
+    }
 }

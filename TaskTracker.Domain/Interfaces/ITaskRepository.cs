@@ -1,5 +1,6 @@
 ﻿using TaskTracker.SharedKernel.Common;
 using TaskTracker.Domain.Entities;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Domain.Interfaces
 {

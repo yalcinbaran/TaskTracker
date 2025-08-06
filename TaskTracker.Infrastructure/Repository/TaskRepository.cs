@@ -2,6 +2,7 @@
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Infrastructure.Persistence;
+using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 
 namespace TaskTracker.Infrastructure.Repository
@@ -59,14 +60,8 @@ namespace TaskTracker.Infrastructure.Repository
         {
             try
             {
-                await _context.TaskItems
-                    .Where(t => t.Id == task.Id)
-                    .ExecuteUpdateAsync(t => t.SetProperty(x => x.Title, task.Title)
-                                               .SetProperty(x => x.Description, task.Description)
-                                               .SetProperty(x => x.DueDate, task.DueDate)
-                                               .SetProperty(x => x.Priority, task.Priority)
-                                               .SetProperty(x => x.TaskState, task.TaskState)
-                                               .SetProperty(x => x.UserId, task.UserId));
+                _context.TaskItems.Update(task);
+                await _context.SaveChangesAsync();
                 return (OperationResult.Ok("Görev başarıyla güncellendi."), task.Id);
             }
             catch (Exception ex)

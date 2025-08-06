@@ -1,7 +1,7 @@
 ﻿using TaskTracker.Application.Tasks.Commands;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Domain.ValueObjects;
-using TaskTracker.SharedKernel.Common;
+using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers
 {
@@ -21,11 +21,11 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
             try
             {
                 task.Update(
-                    command.Title!,
                     command.Description!,
                     command.DueDate,
                     Priority.FromLevel(command.PriorityLevel),
-                    TaskState.FromLevel(command.TaskStateLevel)
+                    TaskState.FromLevel(command.TaskStateLevel),
+                    command.UserId
                 );
                 var (Result, UpdatedId) = await _taskRepository.UpdateAsync(task);
                 if (!Result.IsSuccess)
