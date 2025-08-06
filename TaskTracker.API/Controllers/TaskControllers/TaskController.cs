@@ -11,13 +11,14 @@ namespace TaskTracker.API.Controllers.TaskControllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskController(CreateTaskCommandHandler createTask, 
-                                UpdateTaskCommandHandler updateTask, 
+    public class TaskController(CreateTaskCommandHandler createTask,
+                                UpdateTaskCommandHandler updateTask,
                                 DeleteTaskCommandHandler deleteTask,
                                 GetTaskByIdQueryHandler getTaskById,
                                 GetAllTasksQueryHandler getAllTasks,
                                 GetPriorityQueryHandler getPriorities,
-                                GetStatesQueryHandler getStates) : ControllerBase
+                                GetStatesQueryHandler getStates,
+                                GetTasksByStateQueryHandler getTasksByState) : ControllerBase
     {
         private readonly CreateTaskCommandHandler _createTask = createTask;
         private readonly UpdateTaskCommandHandler _updateTask = updateTask;
@@ -26,6 +27,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
         private readonly GetAllTasksQueryHandler _getAllTasks = getAllTasks;
         private readonly GetPriorityQueryHandler _getPriorities = getPriorities;
         private readonly GetStatesQueryHandler _getStates = getStates;
+        private readonly GetTasksByStateQueryHandler _getTasksByState = getTasksByState;
 
         [HttpPost("CreateTask")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
@@ -38,7 +40,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
             if (result.Success && createdId.HasValue)
             {
                 // CreatedAtAction ile oluşturulan kaynağın GetById endpoint'ine link veriyoruz.
-                return CreatedAtAction(nameof(GetTaskById), new { id = createdId.Value }, new { message = result.Message , result.Success });
+                return CreatedAtAction(nameof(GetTaskById), new { id = createdId.Value }, new { message = result.Message, result.Success });
             }
             else
             {
@@ -46,15 +48,15 @@ namespace TaskTracker.API.Controllers.TaskControllers
             }
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateTask(Guid id, [FromBody] UpdateTaskCommand command)
+        [HttpPut("UpdateTask")]
+        public async Task<IActionResult> UpdateTask([FromBody] UpdateTaskCommand command)
         {
-            if (command == null || id != command.Id)
+            if (command == null)
                 return BadRequest("Geçersiz istek.");
 
-            var (result, updatedId) = await _updateTask.HandleAsync(command);
+            var result = await _updateTask.HandleAsync(command);
             if (result.IsSuccess)
-                return Ok(new { message = result.Message, id = updatedId });
+                return Ok(new { message = result.Message });
             else
                 return BadRequest(new { message = result.Message });
         }
@@ -121,6 +123,24 @@ namespace TaskTracker.API.Controllers.TaskControllers
             catch (Exception ex)
             {
                 // Detaylı hata mesajı dönüşü (yalnızca geliştirme ortamında yapılmalı)
+                return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        [HttpGet("TasksByStateLevel")]
+        public async Task<IActionResult> GetTasksByStateLevel([FromQuery] int statelevel)
+        {
+            if (statelevel < 0)
+                return BadRequest("Geçersiz state level.");
+
+            var query = new GetTasksByStateQuery { TaskStateLevel = statelevel };
+            try
+            {
+                var tasks = await _getTasksByState.HandleAsync(query);
+                return Ok(tasks);
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
             }
         }

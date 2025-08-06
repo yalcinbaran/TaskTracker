@@ -2,9 +2,11 @@
 
 namespace TaskTrackerUI.Models
 {
-    public class CreateTaskModel()
+    public class TaskModel()
     {
-        [Required(ErrorMessage ="Görev başlığı zorunludur."), MaxLength(100)]
+        public Guid Id { get; set; }
+
+        [Required(ErrorMessage = "Görev başlığı zorunludur."), MaxLength(100)]
         public string? Title { get; set; }
         [Required(ErrorMessage = "Görev açıklaması zorunludur."), MaxLength(1000)]
         public string? Description { get; set; }

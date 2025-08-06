@@ -1,42 +1,97 @@
 ﻿@page "/tasks"
 @inject ITaskService _taskService
 @inject ISnackbar Snackbar
+@inject ITaskApiService _taskApiService
+@inject IDialogService DialogService
 @inject AppMessageState _appMessageState
 
-@if (tasks == null)
+@if (_isLoading)
 {
     <MudProgressCircular Indeterminate="true" />
 }
-else if (!tasks.Any())
-{
-    <p>Henüz görev yok.</p>
-}
 else
 {
-    <div style="display: flex; flex-direction: column;margin-top: 50px;">
-        <div style="display: flex; flex-direction:row; justify-content:end">
-            <MudButton Color="Color.Error" Disabled="@_isSilDisabled" OnClick="Delete">Sil</MudButton>
+    <MudContainer MaxWidth="MaxWidth.Large">
+
+        <div style="display: flex; flex-direction: column; margin-top: 50px;">
+            <MudSelect T="int" Label="Durum" Value="@selectedState!.Level" ValueChanged="StateSelectionChanged">
+                @foreach (var state in States)
+                {
+                    <MudSelectItem Value="@state.Level">@state.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <div style="display: flex; flex-direction:column; margin-top:30px;">
+                @if (!tasks.Any())
+                {
+                    <MudElement HtmlTag="a" Style="color:red;font-weight:bold;">@selectedState.Name durumunda görev bulunmuyor.</MudElement>
+                }
+                else
+                {
+                    <div style="display: flex; flex-direction:row; justify-content:end">
+                        <MudElement HtmlTag="a" Style="color:black;font-weight:bold;">Görevler</MudElement>
+                        <MudSpacer />
+                        <MudButton Color="Color.Info" Disabled="@_isUpdateDisabled" OnClick="OpenUpdateDialog">Güncelle</MudButton>
+                        <MudButton Color="Color.Error" Disabled="@_isDeleteDisabled" OnClick="Delete">Sil</MudButton>
+                    </div>
+                    <MudDataGrid @ref="@Grid" Items="@tasks" T="TaskItemDTO" Style="margin-top: 20px; width: 100%" MultiSelection="true" ColumnResizeMode="ResizeMode.Column" SelectedItemsChanged="GridSelectionChanged">
+                        <Columns>
+                            <SelectColumn T="TaskItemDTO" ShowInHeader="false" />
+                            <PropertyColumn Property="x => x.Title" Title="Başlık" />
+                            <PropertyColumn Property="x => x.Description" Title="Açıklama" />
+                            <PropertyColumn Property="x => x.PriorityName" Title="Öncelik" />
+                            <PropertyColumn Property="x => x.TaskStateName" Title="Durumu" />
+                            <PropertyColumn Property="x => x.DueDate" Title="Teslim Tarihi" Format="dd.MM.yyyy" />
+                        </Columns>
+                    </MudDataGrid>
+                }
+            </div>
         </div>
-        <div style="display: flex; flex-direction:row;">
-            <MudDataGrid @ref="@Grid" Items="@tasks" T="TaskItemDTO" Style="margin-top: 20px; width: 1200px" MultiSelection="true" ColumnResizeMode="ResizeMode.Column" SelectedItemChanged="GridSelectionChanged">
-                <Columns>
-                    <SelectColumn T="TaskItemDTO" ShowInHeader="false" />
-                    <PropertyColumn Property="x => x.Title" Title="Başlık" />
-                    <PropertyColumn Property="x => x.Description" Title="Açıklama" />
-                    <PropertyColumn Property="x => x.PriorityName" Title="Öncelik" />
-                    <PropertyColumn Property="x => x.TaskStateName" Title="Durumu" />
-                    <PropertyColumn Property="x => x.DueDate" Title="Teslim Tarihi" Format="dd.MM.yyyy" />
-                </Columns>
-            </MudDataGrid>
-        </div>
-    </div>
+    </MudContainer>
 }
+
+<MudDialog Visible="@_isUpdateVisible">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Görev Güncelle</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@selectedRowsIds.FirstOrDefault()" Style="width: 400px;">
+            <MudTextField T="string" Label="Görev Başlığı" @bind-Value="itemToUpdate!.Title" For="@(()=>itemToUpdate!.Title)" />
+            <MudTextField T="string" Label="Görev Açıklaması" @bind-Value="itemToUpdate!.Description" For="@(() => itemToUpdate!.Description)" />
+            <MudSelect T="string" Label="Öncelik" @bind-Value="itemToUpdate!.PriorityName" For="@(()=>itemToUpdate.PriorityName)">
+                @foreach (var priority in _taskApiService.GetPrioritiesAsync().Result)
+                {
+                    <MudSelectItem Value="@priority.Level">@priority.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="string" Label="Durum" @bind-Value="itemToUpdate!.PriorityName" For="@(()=>itemToUpdate.PriorityName)">
+                @foreach (var state in _taskApiService.GetStatesAsync().Result)
+                {
+                    <MudSelectItem Value="@state.Level">@state.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudDatePicker Label="Teslim Tarihi"
+                           DateChanged="@(date => itemToUpdate.DueDate = date!.Value)"
+                           DateFormat="dd.MM.yyyy"
+                           PickerVariant="PickerVariant.Inline"
+                           MinDate="@dateTime" />
+        </MudForm>
+    </DialogContent>
+</MudDialog>
 
 @code {
     MudDataGrid<TaskItemDTO>? Grid;
+    private IEnumerable<StateDto> States = new List<StateDto>();
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
     List<Guid> selectedRowsIds = [];
-    private bool _isSilDisabled = true;
+    private bool _isDeleteDisabled = true;
+    private bool _isUpdateDisabled = true;
+    private int stateLevel = 0;
+    private StateDto? selectedState { get; set; }
+    private bool _isLoading = true;
+    private bool _isUpdateVisible = false;
+    private TaskItemDTO? itemToUpdate { get; set; }
+    private DateTime dateTime = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,22 +100,58 @@ else
             Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
             _appMessageState.SnackbarMessage = null;
         }
-        tasks = await _taskService.GetAllTasksAsync();
+        States = await _taskApiService.GetStatesAsync();
+        States = States.Append(new StateDto { Level = 0, Name = "Tümü" });
+        await StateSelectionChanged(0);
     }
 
-    void GridSelectionChanged()
+    async Task StateSelectionChanged(int level)
+    {
+        _isLoading = true;
+        stateLevel = level;
+        selectedState = States.Where<StateDto>(s => s.Level == level).FirstOrDefault();
+        if (stateLevel == 0)
+        {
+            var result = await _taskService.GetAllTasksAsync();
+            tasks = result.Where(t => t.DueDate >= DateTime.Today);
+        }
+        else
+        {
+            var result = await _taskService.GetTasksByStateAsync(stateLevel);
+            tasks = result.Where(t => t.DueDate >= DateTime.Today);
+        }
+        if (Grid != null)
+            Grid.SelectedItems.Clear();
+        selectedRowsIds.Clear();
+        _isDeleteDisabled = true;
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    void GridSelectionChanged(HashSet<TaskItemDTO> taskItems)
     {
         selectedRowsIds.Clear();
-        foreach (var item in Grid!.SelectedItems)
+        foreach (var item in taskItems)
         {
             selectedRowsIds.Add(item.Id);
         }
-        _isSilDisabled = selectedRowsIds.Count() > 0 ? false : true;
+        if (taskItems.Count == 1)
+        {
+            itemToUpdate = taskItems.ElementAt(0);
+        }
+        else
+        {
+            itemToUpdate = null;
+        }
+        _isUpdateDisabled = taskItems.Count() == 1 ? false : true;
+        _isDeleteDisabled = taskItems.Count() > 0 ? false : true;
+        StateHasChanged();
     }
 
     async Task Delete()
     {
-        _isSilDisabled = true;
+        _isUpdateDisabled = true;
+        _isDeleteDisabled = true;
         if (selectedRowsIds.Count() > 0)
         {
             if (selectedRowsIds.Count() == 1)
@@ -123,6 +214,29 @@ else
         {
             Snackbar.Add("Silinecek görev seçilmedi.", Severity.Warning);
         }
-        _isSilDisabled = false;
+        _isDeleteDisabled = false;
+        _isUpdateDisabled = false;
     }
+
+    private async Task OpenUpdateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Task"] = itemToUpdate
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialogresult = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
+        if (!dialogresult.Result.Result!.Canceled)
+        {
+            
+        }
+    }
+
 }

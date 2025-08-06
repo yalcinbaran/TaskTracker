@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.SharedKernel.Common
+﻿namespace TaskTracker.Shared.Common
 {
     public class UserDTO
     {

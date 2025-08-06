@@ -1,4 +1,4 @@
-﻿using TaskTracker.SharedKernel.Common;
+﻿using TaskTracker.Shared.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
 

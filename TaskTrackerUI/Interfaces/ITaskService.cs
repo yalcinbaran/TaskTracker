@@ -7,8 +7,10 @@ namespace TaskTrackerUI.Interfaces
     public interface ITaskService
     {
         Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync();
-        Task<ApiResponse<Guid?>> CreateTaskAsync(CreateTaskModel model);
+        Task<IEnumerable<TaskItemDTO>> GetTasksByStateAsync(int stateLevel);
+        Task<ApiResponse<Guid?>> CreateTaskAsync(TaskModel model);
         Task<ApiResponse<TaskDeleteResult>> DeleteTaskAsync(Guid id);
         Task<ApiResponse<BulkDeleteResult>> BulkDeleteAsync(IEnumerable<Guid> ids);
+        Task<ApiResponse<OperationResult>> UpdateTaskAsync(TaskModel model);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.SharedKernel
+﻿namespace TaskTracker.Shared
 {
     public abstract class ValueObject
     {

@@ -1,5 +1,4 @@
 ﻿@page "/addtask"
-@using TaskTracker.Shared.Common
 @inject ITaskApiService _taskApiService
 @inject ITaskService _taskService
 @inject ISnackbar Snackbar
@@ -9,20 +8,13 @@
 
 <MudForm @ref="@mudForm" Model="createTaskModel" Style="width:800px; margin-top: 50px;">
     <MudTextField T="string" Label="Görev Başlığı" @bind-Value="@createTaskModel.Title" For="@(() => createTaskModel.Title)" Required="true" />
-        <div style="height:20px;"></div>
+    <div style="height:20px;"></div>
     <MudTextField T="string" Label="Görev Açıklaması" @bind-Value="@createTaskModel.Description" For="@(() => createTaskModel.Description)" Required="true" />
     <div style="display: flex; flex-direction: row; margin-top:40px;">
         <MudSelect T="int" Label="Öncelik" @bind-Value="@createTaskModel.PriorityLevel" For="@(() => createTaskModel.PriorityLevel)" Required="true" Style="width:32%">
             @foreach (var priority in Priorities)
             {
                 <MudSelectItem Value="@priority.Level">@priority.Name</MudSelectItem>
-            }
-        </MudSelect>
-        <MudSpacer />
-        <MudSelect T="int" Label="Durum" @bind-Value="@createTaskModel.StateLevel" For="@(() => createTaskModel.StateLevel)" Required="true" Style="width:32%">
-            @foreach (var state in States)
-            {
-                <MudSelectItem Value="@state.Level">@state.Name</MudSelectItem>
             }
         </MudSelect>
         <MudSpacer />
@@ -39,7 +31,7 @@
     MudForm? mudForm;
     private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
     private IEnumerable<StateDto> States = new List<StateDto>();
-    private CreateTaskModel createTaskModel = new CreateTaskModel();
+    private TaskModel createTaskModel = new TaskModel();
     private DateTime dateTime = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
@@ -68,12 +60,13 @@
         }
         if (createTaskModel != null)
         {
+            createTaskModel.StateLevel = 3;
             var response = await _taskService.CreateTaskAsync(createTaskModel);
             if (response.Success)
             {
                 _appMessageState.SnackbarMessage = "Görev başarıyla oluşturuldu!";
                 _appMessageState.SnackbarSeverity = Severity.Success;
-                _navManager.NavigateTo("/tasks");                
+                _navManager.NavigateTo("/tasks");
             }
             else
             {

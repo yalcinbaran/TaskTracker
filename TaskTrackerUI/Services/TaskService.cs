@@ -1,4 +1,5 @@
 ﻿using MudBlazor;
+using System.Net.Http.Json;
 using TaskTracker.Shared.Common;
 using TaskTracker.SharedKernel.Common;
 using TaskTrackerUI.Interfaces;
@@ -17,7 +18,7 @@ namespace TaskTrackerUI.Services
             return result!;
         }
 
-        public async Task<ApiResponse<Guid?>> CreateTaskAsync(CreateTaskModel model)
+        public async Task<ApiResponse<Guid?>> CreateTaskAsync(TaskModel model)
         {
             ArgumentNullException.ThrowIfNull(model, nameof(model));
 
@@ -70,6 +71,32 @@ namespace TaskTrackerUI.Services
                 var error = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"Error bulk deleting tasks: {response.ReasonPhrase}, Details: {error}");
             }
+        }
+
+        public async Task<IEnumerable<TaskItemDTO>> GetTasksByStateAsync(int stateLevel)
+        {
+            ArgumentNullException.ThrowIfNull(stateLevel, nameof(stateLevel));
+            if (stateLevel < 0)
+                throw new ArgumentOutOfRangeException(nameof(stateLevel), "Geçersiz state seviyesi.");
+            var client = _httpClient.CreateClient("ApiClient");
+            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/TasksByStateLevel?statelevel={stateLevel}");
+            return response == null ? throw new HttpRequestException($"No tasks found for state level {stateLevel}") : response!;
+        }
+
+        public async Task<string> UpdateTaskAsync(TaskModel model)
+        {
+            ArgumentNullException.ThrowIfNull(model);
+
+            var client = _httpClient.CreateClient("ApiClient");
+
+            var response = await client.PutAsJsonAsync("api/Task/UpdateTask", model);
+
+            var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            if (response.IsSuccessStatusCode)
+                return result?["message"] ?? "Güncelleme başarılı fakat mesaj alınamadı.";
+
+            throw new ApplicationException(result?["message"] ?? "Görev güncellenemedi.");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using TaskTracker.SharedKernel;
+﻿using TaskTracker.Shared;
 
 namespace TaskTracker.Domain.ValueObjects
 {

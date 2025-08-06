@@ -9,13 +9,13 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
     {
         private readonly ITaskRepository _taskRepository = taskRepository;
 
-        public async Task<(OperationResult Result, Guid UpdatedId)> HandleAsync(UpdateTaskCommand command)
+        public async Task<OperationResult> HandleAsync(UpdateTaskCommand command)
         {
             ArgumentNullException.ThrowIfNull(command);
             var task = await _taskRepository.GetByIdAsync(command.Id);
             if (task == null)
             {
-                return (OperationResult.Fail("Görev bulunamadı."), Guid.Empty);
+                return (OperationResult.Fail("Görev bulunamadı."));
             }
 
             try
@@ -27,16 +27,16 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
                     Priority.FromLevel(command.PriorityLevel),
                     TaskState.FromLevel(command.TaskStateLevel)
                 );
-                var (result,taskId) = await _taskRepository.UpdateAsync(task);
-                if (!result.Success)
+                var (Result, UpdatedId) = await _taskRepository.UpdateAsync(task);
+                if (!Result.IsSuccess)
                 {
-                    return (OperationResult.Fail($"Görev güncelleme sırasında hata meydana geldi: {result.Message ?? "Bilinmeyen hata"}"), taskId);
+                    return (OperationResult.Fail($"Görev güncelleme sırasında hata meydana geldi: {Result.Message ?? "Bilinmeyen hata"}"));
                 }
-                return (OperationResult.Ok("Görev başarıyla güncellendi."), taskId);
+                return (OperationResult.Ok("Görev başarıyla güncellendi."));
             }
             catch (Exception ex)
             {
-                return (OperationResult.Fail($"Görev güncelleme sırasında hata meydana geldi: {ex.Message}"),task.Id);
+                return (OperationResult.Fail($"Görev güncelleme sırasında hata meydana geldi: {ex.Message}"));
             }
         }
     }
