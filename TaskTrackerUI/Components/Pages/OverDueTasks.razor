@@ -1,4 +1,4 @@
-﻿@page "/completedtasks"
+﻿@page "/overduetasks"
 @inject ITaskService _taskService
 @inject ISnackbar Snackbar
 @inject ITaskApiService _taskApiService
@@ -14,16 +14,18 @@ else
     <MudContainer MaxWidth="MaxWidth.Large">
 
         <div style="display: flex; flex-direction: column;">
+
             <div style="display: flex; flex-direction:column; margin-top:30px;">
                 @if (!tasks.Any())
                 {
-                    <MudElement HtmlTag="a" Style="color:red;font-weight:bold;">Tamamlanan görev bulunmuyor.</MudElement>
+                    <MudElement HtmlTag="a" Style="color:red;font-weight:bold;">Teslim tarihi geçmiş görev bulunmuyor.</MudElement>
                 }
                 else
                 {
                     <div style="display: flex; flex-direction:row; justify-content:end">
                         <MudElement HtmlTag="a" Style="color:black;font-weight:bold;">Görevler</MudElement>
                         <MudSpacer />
+                        <MudButton Color="Color.Info" Disabled="@_isUpdateDisabled" OnClick="OpenUpdateDialog">Güncelle</MudButton>
                         <MudButton Color="Color.Error" Disabled="@_isDeleteDisabled" OnClick="Delete">Sil</MudButton>
                     </div>
                     <MudDataGrid @ref="@Grid" Items="@tasks" T="TaskItemDTO" Style="margin-top: 20px; width: 100%" MultiSelection="true" ColumnResizeMode="ResizeMode.Column" SelectedItemsChanged="GridSelectionChanged">
@@ -45,6 +47,8 @@ else
 
 @code {
     MudDataGrid<TaskItemDTO>? Grid;
+    private IEnumerable<StateDto> States = new List<StateDto>();
+    private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
     List<Guid> selectedRowsIds = [];
     private bool _isDeleteDisabled = true;
@@ -57,17 +61,39 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
+        {
+            Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
+            _appMessageState.SnackbarMessage = null;
+        }
+        Priorities = await _taskApiService.GetPrioritiesAsync();
+        States = await _taskApiService.GetStatesAsync();
+        States = States.Where(s => s.Level != 1 && s.Level != 4);
+        States = States.Append(new StateDto { Level = 0, Name = "Tümü" });
+        await StateSelectionChanged(0);
+    }
+
+    async Task StateSelectionChanged(int level)
+    {
         _isLoading = true;
-        try
+        stateLevel = level;
+        selectedState = States.Where<StateDto>(s => s.Level == level).FirstOrDefault();
+        if (selectedState!.Name == "Tümü")
         {
-            tasks = await _taskService.GetAllCompletedAsync();
-            _isLoading = false;
+            tasks = await _taskService.GetAllActiveAsync();
         }
-        catch (Exception ex)
+        else
         {
-            Snackbar.Add($"Hata: {ex.Message}", Severity.Error);
-            _isLoading = false;
+            tasks = await _taskService.GetAllActiveAsync();
+            tasks = tasks.Where(t => t.TaskStateName == selectedState!.Name);
         }
+
+        if (Grid != null)
+            Grid.SelectedItems.Clear();
+        selectedRowsIds.Clear();
+        _isDeleteDisabled = true;
+        _isLoading = false;
+        StateHasChanged();
     }
 
     void GridSelectionChanged(HashSet<TaskItemDTO> taskItems)
@@ -158,5 +184,45 @@ else
         }
         _isDeleteDisabled = false;
         _isUpdateDisabled = false;
+    }
+
+    private async Task OpenUpdateDialog()
+    {
+        var parameters = new DialogParameters { ["Task"] = itemToUpdate };
+        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialogReference = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
+        var dialogResult = await dialogReference.Result;
+
+        if (!dialogResult!.Canceled)
+        {
+            var response = dialogResult.Data as ApiResponse<OperationResult>;
+            if (response?.Success == true)
+            {
+                Snackbar.Add("Görev başarıyla güncellendi.", Severity.Success);
+                tasks = await _taskService.GetAllActiveAsync();
+                Grid!.SelectedItems.Clear();
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add(response?.Message ?? "Güncelleme başarısız.", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("İşlem iptal edildi.", Severity.Info);
+        }
+    }
+
+
+    private int GetPriorityLevelFromName(string? name)
+    {
+        return Priorities.FirstOrDefault(p => p.Name == name)?.Level ?? 0;
+    }
+
+    private int GetStateLevelFromName(string? name)
+    {
+        return States.FirstOrDefault(s => s.Name == name)?.Level ?? 0;
     }
 }
