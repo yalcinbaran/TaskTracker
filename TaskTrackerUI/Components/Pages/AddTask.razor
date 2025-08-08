@@ -30,7 +30,6 @@
 @code {
     MudForm? mudForm;
     private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
-    private IEnumerable<StateDto> States = new List<StateDto>();
     private TaskModel createTaskModel = new TaskModel();
     private DateTime dateTime = DateTime.Today;
 
@@ -41,7 +40,8 @@
             Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
             _appMessageState.SnackbarMessage = null;
         }
-        await PriorityAndState();
+        await GetPriority();
+        createTaskModel.StateLevel = 3;
         StateHasChanged();
     }
 
@@ -75,19 +75,13 @@
         }
     }
 
-    async Task PriorityAndState()
+    async Task GetPriority()
     {
         var response = await _taskApiService.GetPrioritiesAsync();
         Priorities = response ?? new List<PriorityDto>();
         if (Priorities?.Any() == true)
         {
             createTaskModel.PriorityLevel = Priorities.First().Level;
-        }
-        var stateResponse = await _taskApiService.GetStatesAsync();
-        States = stateResponse ?? new List<StateDto>();
-        if (States?.Any() == true)
-        {
-            createTaskModel.StateLevel = States.ElementAt(1).Level;
         }
     }
 }

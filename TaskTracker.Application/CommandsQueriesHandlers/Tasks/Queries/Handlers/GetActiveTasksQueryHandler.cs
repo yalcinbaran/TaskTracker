@@ -1,9 +1,8 @@
-﻿using TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries;
-using TaskTracker.Application.Mappings;
+﻿using TaskTracker.Application.Mappings;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Shared.Common;
 
-namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handlers
+namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 {
     public class GetActiveTasksQueryHandler(ITaskRepository taskRepository)
     {
@@ -11,9 +10,14 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Commands.Handler
         public async Task<IEnumerable<TaskItemDTO>> HandleAsync(GetActiveTasksQuery query)
         {
             ArgumentNullException.ThrowIfNull(query, nameof(query));
-            var tasks = await _taskRepository.GetAllActiveTasks(query.DueDate);
-            var dtos = tasks.Select(task => task.ToDto()).ToList();
-            return dtos;
+
+            var date = DateTime.UtcNow.Date;
+
+            var tasks = await _taskRepository.GetAllActiveTasksAsync(date);
+
+            var dtos = tasks.ToDtoList();
+
+            return dtos!;
         }
     }
 }

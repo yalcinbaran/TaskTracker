@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Reflection;
-using TaskTracker.Shared.Common;
+﻿using TaskTracker.Shared.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
 
@@ -106,15 +104,11 @@ namespace TaskTrackerUI.Services
             return apiResponse;
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync(DateTime date)
+        public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync()
         {
-            ArgumentNullException.ThrowIfNull(date);
-
             var client = _httpClient.CreateClient("ApiClient");
 
-            var dateString = date.ToString("yyyy-MM-dd");
-
-            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/GetActiveTasks?date={dateString}");
+            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetActiveTasks");
 
             return response!;
         }
@@ -122,6 +116,15 @@ namespace TaskTrackerUI.Services
         public Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date)
         {
             throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync()
+        {
+            var cient = _httpClient.CreateClient("ApiClient");
+
+            var response = cient.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetCompletedTasks");
+
+            return response!;
         }
     }
 }

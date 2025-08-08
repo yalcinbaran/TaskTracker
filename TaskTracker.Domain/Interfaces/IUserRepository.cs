@@ -12,7 +12,7 @@ namespace TaskTracker.Domain.Interfaces
         Task<OperationResult> DeleteAsync(Guid id);
         Task<bool> ExistsByEmailAsync(string email);
         Task<Users?> GetByEmailAsync(string email);
-        Task<Users?> GetByUsernameAsync(string email);
+        Task<ApiResponse<Users?>> GetByUsernameAsync(string email);
         Task<bool> CheckPasswordAsync(Users user, string password); // hash karşılaştırması
     }
 }

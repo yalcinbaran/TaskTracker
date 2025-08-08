@@ -8,39 +8,28 @@ namespace TaskTrackerUI.Services
     {
         private readonly IHttpClientFactory _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-        public async Task<ApiResponse<T>> LoginAsync<T>(LoginModel login)
+        public async Task<ApiResponse<UserDTO>> LoginAsync(LoginModel login)
         {
             var client = _httpClient.CreateClient("ApiClient");
             var response = await client.PostAsJsonAsync("api/User/login", login);
+
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
-                return ApiResponse<T>.FailResponse(message!.Message);
+                var errorContent = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
+                return ApiResponse<UserDTO>.FailResponse(errorContent?.Error ?? "Sunucudan hata yanıtı alındı.");
             }
+
             var content = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
-            if (content is null)
-                return ApiResponse<T>.FailResponse("API'den geçerli bir yanıt alınamadı.");
-            try
+
+            if (content is null || content.Data is null)
             {
-                if (typeof(T) == typeof(UserDTO))
-                {
-                    return new ApiResponse<T>
-                    {
-                        Success = content!.Success,
-                        Message = content.Message,
-                        Data = (T)(object)content.Data!
-                    };
-                }
-                else
-                {
-                    return ApiResponse<T>.FailResponse("Beklenmeyen veri tipi.");
-                }
+                return ApiResponse<UserDTO>.FailResponse("API'den geçerli bir yanıt alınamadı.");
             }
-            catch (Exception ex)
-            {
-                return ApiResponse<T>.FailResponse("Cevap işlenemedi: " + ex.Message);
-            }
+
+            return content;
         }
+
+
 
         public async Task<ApiResponse<T>> RegisterAsync<T>(RegisterModel register)
         {
@@ -49,7 +38,7 @@ namespace TaskTrackerUI.Services
             if (!response.IsSuccessStatusCode)
             {
                 var message = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
-                return ApiResponse<T>.FailResponse(message!.Message);
+                return ApiResponse<T>.FailResponse(message!.Message!);
             }
             var content = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
             if (content is null)

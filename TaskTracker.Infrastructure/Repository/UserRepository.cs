@@ -2,7 +2,6 @@
 using TaskTracker.Application.Auth;
 using TaskTracker.Domain.Entities;
 using TaskTracker.Domain.Interfaces;
-using TaskTracker.Domain.ValueObjects;
 using TaskTracker.Infrastructure.Persistence;
 using TaskTracker.Shared.Common;
 
@@ -73,11 +72,16 @@ namespace TaskTracker.Infrastructure.Repository
                                        .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<Users?> GetByUsernameAsync(string username)
+        public async Task<ApiResponse<Users?>> GetByUsernameAsync(string username)
         {
             ArgumentNullException.ThrowIfNull(username, nameof(username));
-            return await _context.Users.AsNoTracking()
-                                       .FirstOrDefaultAsync(u => u.Username == username);
+            ApiResponse<Users?> response = new()
+            {
+                Success = true,
+                Data = await _context.Users.AsNoTracking()
+                                           .FirstOrDefaultAsync(u => u.Username == username)
+            };
+            return response;
         }
 
         public async Task<(OperationResult Result, Guid UpdatedId)> UpdateAsync(Users user)
@@ -95,7 +99,7 @@ namespace TaskTracker.Infrastructure.Repository
             }
             catch (Exception ex)
             {
-                return (OperationResult.Fail($"Kullanıcı güncellenirken hata oluştu: {ex.Message}" ?? "Bilinmeyen hata."),Guid.Empty);
+                return (OperationResult.Fail($"Kullanıcı güncellenirken hata oluştu: {ex.Message}" ?? "Bilinmeyen hata."), Guid.Empty);
             }
         }
     }

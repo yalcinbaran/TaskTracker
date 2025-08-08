@@ -1,7 +1,6 @@
 ﻿namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries
 {
-    public class GetActiveTasksQuery
+    public class GetCompletedTasksQuery
     {
-        
     }
 }

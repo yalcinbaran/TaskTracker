@@ -5,7 +5,7 @@ namespace TaskTrackerUI.Interfaces
 {
     public interface IAuthService
     {
-        Task<ApiResponse<T>> LoginAsync<T>(LoginModel login);
+        Task<ApiResponse<UserDTO>> LoginAsync(LoginModel login);
         Task<ApiResponse<T>> RegisterAsync<T>(RegisterModel register);
     }
 }

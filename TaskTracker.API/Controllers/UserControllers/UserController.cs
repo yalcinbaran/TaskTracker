@@ -85,11 +85,11 @@ namespace TaskTracker.API.Controllers.UserControllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand model)
         {
-            var response = await _login.HandleAsync<UserDTO>(model);
+            var response = await _login.HandleAsync(model);
 
             if (!response.Success || response.Data == null)
             {
-                return Unauthorized(ApiResponse<UserDTO>.FailResponse(response.Message!));
+                return Unauthorized(ApiResponse<UserDTO>.FailResponse(response.Error!));
             }
 
             return Ok(ApiResponse<UserDTO>.SuccessResponse(response.Data, "Giriş başarılı."));

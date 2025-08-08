@@ -19,7 +19,8 @@ namespace TaskTracker.API.Controllers.TaskControllers
                                 GetActiveTasksQueryHandler getActiveTasks,
                                 GetPriorityQueryHandler getPriorities,
                                 GetStatesQueryHandler getStates,
-                                GetTasksByStateQueryHandler getTasksByState) : ControllerBase
+                                GetTasksByStateQueryHandler getTasksByState,
+                                GetCompletedTasksQueryHandler getCompletedTasks) : ControllerBase
     {
         private readonly CreateTaskCommandHandler _createTask = createTask;
         private readonly UpdateTaskCommandHandler _updateTask = updateTask;
@@ -30,6 +31,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
         private readonly GetPriorityQueryHandler _getPriorities = getPriorities;
         private readonly GetStatesQueryHandler _getStates = getStates;
         private readonly GetTasksByStateQueryHandler _getTasksByState = getTasksByState;
+        private readonly GetCompletedTasksQueryHandler _getCompletedTasks = getCompletedTasks;
 
         [HttpPost("CreateTask")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
@@ -116,9 +118,16 @@ namespace TaskTracker.API.Controllers.TaskControllers
         }
 
         [HttpGet("GetActiveTasks")]
-        public async Task<IActionResult> GetActiveTasks([FromQuery] DateTime date)
+        public async Task<IActionResult> GetActiveTasks()
         {
-            var taskDtos = await _getActiveTasks.HandleAsync(new GetActiveTasksQuery() { DueDate = date });
+            var taskDtos = await _getActiveTasks.HandleAsync(new GetActiveTasksQuery());
+            return Ok(taskDtos);
+        }
+
+        [HttpGet("GetCompletedTasks")]
+        public async Task<IActionResult> GetCompletedTasks()
+        {
+            var taskDtos = await _getCompletedTasks.HandleAsync(new GetCompletedTasksQuery());
             return Ok(taskDtos);
         }
 

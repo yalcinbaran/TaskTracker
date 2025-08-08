@@ -26,6 +26,8 @@ namespace TaskTracker.Application
             services.AddScoped<UpdateUserCommandHandler>();
             services.AddScoped<GetPriorityQueryHandler>();
             services.AddScoped<GetStatesQueryHandler>();
+            services.AddScoped<GetActiveTasksQueryHandler>();
+            services.AddScoped<GetCompletedTasksQueryHandler>();
             return services;
         }
     }
