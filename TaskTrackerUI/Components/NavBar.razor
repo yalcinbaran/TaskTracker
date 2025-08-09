@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager _navManager
 <MudNavMenu>
+    <MudNavLink OnClick="@(() => { _navManager.NavigateTo("/home"); _isTasksMenuExpanded = false; })">Anasayfa</MudNavLink>
     <MudNavLink OnClick="@(() => _isTasksMenuExpanded = !_isTasksMenuExpanded)">Görevler</MudNavLink>
     <MudCollapse Expanded="@_isTasksMenuExpanded">
         <MudNavLink Href="/activetasks" Match="NavLinkMatch.All">

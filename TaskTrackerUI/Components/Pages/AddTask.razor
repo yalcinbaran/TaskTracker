@@ -6,6 +6,7 @@
 @inject NavigationManager _navManager
 @inject AppMessageState _appMessageState
 @inject IStateAndPriorityService _stateAndPriorities
+<PageTitle>Yeni Görev</PageTitle>
 
 <MudForm @ref="@mudForm" Model="createTaskModel" Style="width:800px; margin-top: 50px;">
     <MudTextField T="string" Label="Görev Başlığı" @bind-Value="@createTaskModel.Title" For="@(() => createTaskModel.Title)" Required="true" />
