@@ -1,4 +1,4 @@
-﻿using TaskTracker.Domain.ValueObjects;
+﻿using TaskTracker.Domain.OwnedTypes;
 using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks

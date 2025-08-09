@@ -4,19 +4,33 @@
 @inject ICompletedTasksService _completedTasks
 @inject IOverdueTasksService _overdueTasks
 @inject ICanceledTasksService _canceledTasks
+<PageTitle>Anasayfa</PageTitle>
 
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+@if (_isLoading)
+{
+    <div style="display: flex; flex-direction: column; justify-content:center;">
+        <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 150px;">
+            <MudProgressLinear Indeterminate="true" Color="Color.Info" Style="width: 150px;" Rounded="true"  />
+        </div>
+        <div style="margin-top: 20px;">
+            <MudElement Style="font-weight:500">Görev verileri alınıyor...</MudElement>
+        </div>
+    </div>
+}
+else
+{
+    <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" InputData="@Data" InputLabels="@Labels" Style="margin-top: 150px;"></MudChart>
+}
 
 @code {
     private bool _isLoading = true;
+    private double[] Data { get; set; } = Array.Empty<double>();
+    private string[] Labels = {"Aktif Görevler", "Tamamlanmış Görevler", "Teslim Tarihi Geçmiş Görevler", "İptal Edilmiş Görevler" };
 
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
+        await Task.Delay(1500);
         DateTime dateTime = DateTime.Today;
         // Load active tasks and states/priority data
         await _statesAndPriorities.LoadStatesAsync();
@@ -31,6 +45,16 @@ Welcome to your new app.
         await _overdueTasks.LoadOverdueTasks(dateTime);
 
         await _canceledTasks.LoadCanceledTasks();
+
+        var activeTasks = _activeTasks.GetActiveTasks();
+        var completedTasks = _completedTasks.GetCompletedTasks();
+        var overdueTasks = _overdueTasks.GetOverdueTasks();
+        var canceledTasks = _canceledTasks.GetCanceledTasks();
+
+        Data = Data.Append(activeTasks.Count).ToArray();
+        Data = Data.Append(completedTasks.Count).ToArray();
+        Data = Data.Append(overdueTasks.Count).ToArray();
+        Data = Data.Append(canceledTasks.Count).ToArray();
         _isLoading = false;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using TaskTracker.Domain.Entities;
+using TaskTracker.Domain.OwnedTypes;
 using TaskTracker.Domain.ValueObjects;
 using TaskTracker.Shared.Common;
 
