@@ -1,7 +1,6 @@
 ﻿using TaskTracker.Shared.Common;
-using TaskTrackerUI.Models;
 
-namespace TaskTrackerUI.Interfaces
+namespace TaskTracker.Shared.Interfaces
 {
     public interface IUserSessionService
     {

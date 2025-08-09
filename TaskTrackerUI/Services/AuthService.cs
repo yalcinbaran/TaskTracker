@@ -1,4 +1,5 @@
-﻿using TaskTracker.Shared.Common;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using TaskTracker.Shared.Common;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Models;
 
@@ -31,37 +32,30 @@ namespace TaskTrackerUI.Services
 
 
 
-        public async Task<ApiResponse<T>> RegisterAsync<T>(RegisterModel register)
+        public async Task<ApiResponse<UserDTO>> RegisterAsync(RegisterModel register)
         {
             var client = _httpClient.CreateClient("ApiClient");
             var response = await client.PostAsJsonAsync("api/User/CreateUser", register);
             if (!response.IsSuccessStatusCode)
             {
-                var message = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
-                return ApiResponse<T>.FailResponse(message!.Message!);
+                var errorContent = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
+                return ApiResponse<UserDTO>.FailResponse(errorContent?.Error ?? "Sunucudan hata yanıtı alındı.");
             }
             var content = await response.Content.ReadFromJsonAsync<ApiResponse<UserDTO>>();
             if (content is null)
-                return ApiResponse<T>.FailResponse("API'den geçerli bir yanıt alınamadı.");
+                return ApiResponse<UserDTO>.FailResponse("API'den geçerli bir yanıt alınamadı.");
             try
             {
-                if (typeof(T) == typeof(UserDTO))
-                {
-                    return new ApiResponse<T>
+                    return new ApiResponse<UserDTO>
                     {
                         Success = content!.Success,
                         Message = content.Message,
-                        Data = (T)(object)content.Data!
+                        Data = content.Data!
                     };
-                }
-                else
-                {
-                    return ApiResponse<T>.FailResponse("Beklenmeyen veri tipi.");
-                }
             }
             catch (Exception ex)
             {
-                return ApiResponse<T>.FailResponse("Cevap işlenemedi: " + ex.Message);
+                return ApiResponse<UserDTO>.FailResponse("Cevap işlenemedi: " + ex.Message);
             }
         }
     }

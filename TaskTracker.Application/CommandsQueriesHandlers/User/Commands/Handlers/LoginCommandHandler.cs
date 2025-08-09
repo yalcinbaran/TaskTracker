@@ -38,6 +38,5 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.User.Commands.Handlers
 
             return ApiResponse<UserDTO>.SuccessResponse(userDto, "Giriş başarılı.");
         }
-
     }
 }

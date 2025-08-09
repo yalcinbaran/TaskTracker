@@ -61,8 +61,7 @@
 
                 if (result.Success && result.Data is not null)
                 {
-                    _userSessionService.SetSession(result.Data!);
-                    _navManager.NavigateTo("/home");
+                    _navManager.NavigateTo("/home", forceLoad:true);
                 }
                 else
                 {
@@ -84,14 +83,14 @@
 
         if (_registerForm.IsValid)
         {
-            var result = await authService.RegisterAsync<UserDTO>(_registerModel);
+            var result = await authService.RegisterAsync(_registerModel);
             if (result.Success)
             {
                 Snackbar.Add($"{result.Message} Giriş yapabilirsiniz.", Severity.Success);
             }
             else
             {
-                Snackbar.Add(result.Message, Severity.Error);
+                Snackbar.Add(result.Error!, Severity.Error);
             }
         }
         _isRegisterDisabled = false;

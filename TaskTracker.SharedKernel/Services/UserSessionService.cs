@@ -1,8 +1,7 @@
-﻿using TaskTracker.Shared.Common;
-using TaskTrackerUI.Interfaces;
-using TaskTrackerUI.Models;
+﻿using TaskTracker.Shared.Interfaces;
+using TaskTracker.Shared.Common;
 
-namespace TaskTrackerUI.Services
+namespace TaskTracker.Shared.Services
 {
     public class UserSessionService : IUserSessionService
     {

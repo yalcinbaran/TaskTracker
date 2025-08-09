@@ -52,31 +52,5 @@ namespace TaskTracker.Domain.Entities
             TaskState = state;
             UserId = userId;
         }
-
-        public void ChangePriority(Priority newPriority)
-        {
-            ArgumentNullException.ThrowIfNull(newPriority);
-
-            if (Priority == newPriority)
-                return; // Değişiklik yok
-
-            if (DueDate < DateTime.UtcNow)
-                throw new InvalidOperationException("Teslim tarihi geçmiş bir görevin önceliği değiştirilemez.");
-
-            Priority = newPriority;
-        }
-
-        public void ChangeState(TaskState newState)
-        {
-            ArgumentNullException.ThrowIfNull(newState);
-            if (TaskState == newState)
-                return; // Değişiklik yok
-
-            // Teslim tarihi geçmişse durum değiştirilemez
-            if (DueDate < DateTime.UtcNow)
-                throw new InvalidOperationException("Teslim tarihi geçmiş bir görevin durumu değiştirilemez.");
-
-            TaskState = newState;
-        }
     }
 }
