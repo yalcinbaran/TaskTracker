@@ -1,13 +1,10 @@
-﻿@page "/overduetasks"
-@inject ITaskService _taskService
-@inject IOverdueTasksService _overdueTasks
-@inject ICompletedTasksService _completedTasks
-@inject IActiveTaskService _activeTasks
+﻿@page "/canceledtasks"
 @inject ISnackbar Snackbar
 @inject ITaskApiService _taskApiService
+@inject ITaskService _taskService
 @inject IDialogService DialogService
-@inject IStateAndPriorityService _stateAndPriority
 @inject AppMessageState _appMessageState
+@inject ICanceledTasksService _canceledTasks
 
 @if (_isLoading)
 {
@@ -18,18 +15,16 @@ else
     <MudContainer MaxWidth="MaxWidth.Large">
 
         <div style="display: flex; flex-direction: column;">
-
             <div style="display: flex; flex-direction:column; margin-top:30px;">
                 @if (!tasks.Any())
                 {
-                    <MudElement HtmlTag="a" Style="color:red;font-weight:bold;">Teslim tarihi geçmiş görev bulunmuyor.</MudElement>
+                    <MudElement HtmlTag="a" Style="color:red;font-weight:bold;">İptal edilen görev bulunmuyor.</MudElement>
                 }
                 else
                 {
                     <div style="display: flex; flex-direction:row; justify-content:end">
                         <MudElement HtmlTag="a" Style="color:black;font-weight:bold;">Görevler</MudElement>
                         <MudSpacer />
-                        <MudButton Color="Color.Info" Disabled="@_isUpdateDisabled" OnClick="OpenUpdateDialog">Güncelle</MudButton>
                         <MudButton Color="Color.Error" Disabled="@_isDeleteDisabled" OnClick="Delete">Sil</MudButton>
                     </div>
                     <MudDataGrid @ref="@Grid" Items="@tasks" T="TaskItemDTO" Style="margin-top: 20px; width: 100%" MultiSelection="true" ColumnResizeMode="ResizeMode.Column" SelectedItemsChanged="GridSelectionChanged">
@@ -51,13 +46,10 @@ else
 
 @code {
     MudDataGrid<TaskItemDTO>? Grid;
-    private IEnumerable<StateDto> States = new List<StateDto>();
-    private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
     List<Guid> selectedRowsIds = [];
     private bool _isDeleteDisabled = true;
     private bool _isUpdateDisabled = true;
-    private int stateLevel = 0;
     private StateDto? selectedState { get; set; }
     private bool _isLoading = true;
     private TaskItemDTO? itemToUpdate { get; set; }
@@ -65,33 +57,17 @@ else
 
     protected override void OnInitialized()
     {
-        if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
-        {
-            Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
-            _appMessageState.SnackbarMessage = null;
-        }
-        Priorities = _stateAndPriority.GetPriorities();
-        States = _stateAndPriority.GetStates();
-        States = States.Where(s => s.Level != 1 && s.Level != 4);
-        States = States.Append(new StateDto { Level = 0, Name = "Tümü" });
-        StateSelectionChanged(0);
-    }
-
-    void StateSelectionChanged(int level)
-    {
         _isLoading = true;
-        stateLevel = level;
-        selectedState = States.Where<StateDto>(s => s.Level == level).FirstOrDefault();
-        tasks = _overdueTasks.GetOverdueTasks();
-        if (selectedState!.Name != "Tümü")
-            tasks = tasks.Where(t => t.TaskStateName == selectedState!.Name);
-
-        if (Grid != null)
-            Grid.SelectedItems.Clear();
-        selectedRowsIds.Clear();
-        _isDeleteDisabled = true;
-        _isLoading = false;
-        StateHasChanged();
+        try
+        {
+            tasks = _canceledTasks.GetCanceledTasks();
+            _isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Hata: {ex.Message}", Severity.Error);
+            _isLoading = false;
+        }
     }
 
     void GridSelectionChanged(HashSet<TaskItemDTO> taskItems)
@@ -129,8 +105,8 @@ else
                     if (response.Success)
                     {
                         Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
-                        await _overdueTasks.LoadOverdueTasks(dateTime);
-                        tasks = _overdueTasks.GetOverdueTasks();
+                        await _canceledTasks.LoadCanceledTasks();
+                        tasks = _canceledTasks.GetCanceledTasks();
                         Grid!.SelectedItems.Clear();
                     }
                     else
@@ -166,8 +142,8 @@ else
 
                     if (response.Success || response.PartialSuccess)
                     {
-                        await _overdueTasks.LoadOverdueTasks(dateTime);
-                        tasks = _overdueTasks.GetOverdueTasks();
+                        await _canceledTasks.LoadCanceledTasks();
+                        tasks = _canceledTasks.GetCanceledTasks();
                     }
                     Grid!.SelectedItems.Clear();
                     StateHasChanged();
@@ -184,59 +160,5 @@ else
         }
         _isDeleteDisabled = false;
         _isUpdateDisabled = false;
-    }
-
-    private async Task OpenUpdateDialog()
-    {
-        var parameters = new DialogParameters { ["Task"] = itemToUpdate };
-        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small, FullWidth = true };
-
-        var dialogReference = await DialogService.ShowAsync<UpdateTaskDialog>("Görev Güncelle", parameters, options);
-        var dialogResult = await dialogReference.Result;
-
-        if (!dialogResult!.Canceled)
-        {
-            var result = dialogResult.Data as UpdateTaskDialogResult;
-
-            if (result?.Response.Success == true)
-            {
-                Snackbar.Add("Görev başarıyla güncellendi.", Severity.Success);
-                await _overdueTasks.LoadOverdueTasks(dateTime);
-                switch (result.TaskStateLevel)
-                {
-                    case 2: // Beklemede
-                        await _activeTasks.LoadActiveTasks();
-                        break;
-                    case 3: // Devam Ediyor
-                        await _activeTasks.LoadActiveTasks();
-                        break;
-                    case 4: // Tamamlandı
-                        await _completedTasks.LoadCompletedTasks();
-                        break;                    
-                }
-                tasks = _overdueTasks.GetOverdueTasks();
-                Grid!.SelectedItems.Clear();
-                StateHasChanged();
-            }
-            else
-            {
-                Snackbar.Add(result?.Response.Message ?? "Güncelleme başarısız.", Severity.Error);
-            }
-        }
-        else
-        {
-            Snackbar.Add("İşlem iptal edildi.", Severity.Info);
-        }
-    }
-
-
-    private int GetPriorityLevelFromName(string? name)
-    {
-        return Priorities.FirstOrDefault(p => p.Name == name)?.Level ?? 0;
-    }
-
-    private int GetStateLevelFromName(string? name)
-    {
-        return States.FirstOrDefault(s => s.Name == name)?.Level ?? 0;
     }
 }

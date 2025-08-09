@@ -3,7 +3,12 @@
 @inject ISnackbar Snackbar
 @inject ITaskApiService _taskApiService
 @inject IDialogService DialogService
+@inject IActiveTaskService _activeTasks
+@inject IOverdueTasksService _overdueTasks
+@inject ICompletedTasksService _completedTasks
+@inject ICanceledTasksService _canceledTasks
 @inject AppMessageState _appMessageState
+@inject IStateAndPriorityService _stateAndPriorities
 
 @if (_isLoading)
 {
@@ -65,34 +70,28 @@ else
     private TaskItemDTO? itemToUpdate { get; set; }
     private DateTime dateTime = DateTime.Today;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
         {
             Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
             _appMessageState.SnackbarMessage = null;
         }
-        Priorities = await _taskApiService.GetPrioritiesAsync();
-        States = await _taskApiService.GetStatesAsync();
+        Priorities = _stateAndPriorities.GetPriorities();
+        States = _stateAndPriorities.GetStates();
         States = States.Where(s => s.Level != 1 && s.Level != 4);
         States = States.Append(new StateDto { Level = 0, Name = "Tümü" });
-        await StateSelectionChanged(0);
+        StateSelectionChanged(0);
     }
 
-    async Task StateSelectionChanged(int level)
+    void StateSelectionChanged(int level)
     {
         _isLoading = true;
         stateLevel = level;
         selectedState = States.Where<StateDto>(s => s.Level == level).FirstOrDefault();
-        if (selectedState!.Name == "Tümü")
-        {
-            tasks = await _taskService.GetAllActiveAsync();
-        }
-        else
-        {
-            tasks = await _taskService.GetAllActiveAsync();
+        tasks = _activeTasks.GetActiveTasks();
+        if (selectedState!.Name != "Tümü")
             tasks = tasks.Where(t => t.TaskStateName == selectedState!.Name);
-        }
 
         if (Grid != null)
             Grid.SelectedItems.Clear();
@@ -137,7 +136,8 @@ else
                     if (response.Success)
                     {
                         Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
-                        tasks = await _taskService.GetAllTasksAsync();
+                        await _activeTasks.LoadActiveTasks();
+                        tasks = _activeTasks.GetActiveTasks();
                         Grid!.SelectedItems.Clear();
                     }
                     else
@@ -173,7 +173,8 @@ else
 
                     if (response.Success || response.PartialSuccess)
                     {
-                        tasks = await _taskService.GetAllTasksAsync();
+                        await _activeTasks.LoadActiveTasks();
+                        tasks = _activeTasks.GetActiveTasks();
                     }
                     Grid!.SelectedItems.Clear();
                     StateHasChanged();
@@ -202,17 +203,35 @@ else
 
         if (!dialogResult!.Canceled)
         {
-            var response = dialogResult.Data as ApiResponse<OperationResult>;
-            if (response?.Success == true)
+            var result = dialogResult.Data as UpdateTaskDialogResult;
+
+            if (result?.Response.Success == true)
             {
                 Snackbar.Add("Görev başarıyla güncellendi.", Severity.Success);
-                tasks = await _taskService.GetAllActiveAsync();
+                await _overdueTasks.LoadOverdueTasks(dateTime);
+                switch (result.TaskStateLevel)
+                {
+                    case 1: // İptal edilen
+                        await _canceledTasks.LoadCanceledTasks();
+                        break;
+                    case 2: // Beklemede
+                        await _activeTasks.LoadActiveTasks();
+                        break;
+                    case 3: // Devam Ediyor
+                        await _activeTasks.LoadActiveTasks();
+                        break;
+                    case 4: // Tamamlandı
+                        await _completedTasks.LoadCompletedTasks();
+                        break;                    
+                }
+                await _activeTasks.LoadActiveTasks();
+                tasks = _activeTasks.GetActiveTasks();
                 Grid!.SelectedItems.Clear();
                 StateHasChanged();
             }
             else
             {
-                Snackbar.Add(response?.Message ?? "Güncelleme başarısız.", Severity.Error);
+                Snackbar.Add(result?.Response.Message ?? "Güncelleme başarısız.", Severity.Error);
             }
         }
         else

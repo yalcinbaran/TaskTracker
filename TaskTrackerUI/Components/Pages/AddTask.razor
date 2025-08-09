@@ -5,6 +5,7 @@
 @inject IUserSessionService _userService
 @inject NavigationManager _navManager
 @inject AppMessageState _appMessageState
+@inject StateAndPriorityService _stateAndPriorities
 
 <MudForm @ref="@mudForm" Model="createTaskModel" Style="width:800px; margin-top: 50px;">
     <MudTextField T="string" Label="Görev Başlığı" @bind-Value="@createTaskModel.Title" For="@(() => createTaskModel.Title)" Required="true" />
@@ -33,14 +34,14 @@
     private TaskModel createTaskModel = new TaskModel();
     private DateTime dateTime = DateTime.Today;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         if (!string.IsNullOrEmpty(_appMessageState.SnackbarMessage))
         {
             Snackbar.Add(_appMessageState.SnackbarMessage, _appMessageState.SnackbarSeverity);
             _appMessageState.SnackbarMessage = null;
         }
-        await GetPriority();
+        GetPriority();
         createTaskModel.StateLevel = 3;
         StateHasChanged();
     }
@@ -75,10 +76,9 @@
         }
     }
 
-    async Task GetPriority()
+    void GetPriority()
     {
-        var response = await _taskApiService.GetPrioritiesAsync();
-        Priorities = response ?? new List<PriorityDto>();
+        Priorities = _stateAndPriorities.GetPriorities();
         if (Priorities?.Any() == true)
         {
             createTaskModel.PriorityLevel = Priorities.First().Level;

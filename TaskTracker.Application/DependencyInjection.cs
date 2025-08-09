@@ -28,6 +28,7 @@ namespace TaskTracker.Application
             services.AddScoped<GetStatesQueryHandler>();
             services.AddScoped<GetActiveTasksQueryHandler>();
             services.AddScoped<GetCompletedTasksQueryHandler>();
+            services.AddScoped<GetCanceledTasksQueryHandler>();
             return services;
         }
     }

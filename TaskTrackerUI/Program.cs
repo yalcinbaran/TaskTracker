@@ -36,6 +36,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITaskApiService, TaskApiService>();
 builder.Services.AddScoped<AppMessageState>();
+builder.Services.AddScoped<IStateAndPriorityService, StateAndPriorityService>();
+builder.Services.AddScoped<IActiveTaskService, ActiveTasksService>();
+builder.Services.AddScoped<ICompletedTasksService, CompletedTasksService>();
+builder.Services.AddScoped<IOverdueTasksService, OverdueTasksService>();
+builder.Services.AddScoped<ICanceledTasksService, CanceledTasksService>();
 
 
 

@@ -11,7 +11,8 @@ namespace TaskTracker.Domain.Interfaces
         Task<IEnumerable<TaskItem>> GetAllAsync();
         Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date);
         Task<IEnumerable<TaskItem>> GetAllActiveTasksAsync(DateTime date);
-        Task<IEnumerable<TaskItem>> GetAlCompletedTasksAsync();
+        Task<IEnumerable<TaskItem>> GetAllCompletedTasksAsync();
+        Task<IEnumerable<TaskItem>> GetAllCanceledTasksAsync();
         Task<(OperationResult Result, Guid UpdatedId)> UpdateAsync(TaskItem task);
         Task<OperationResult> DeleteAsync(Guid id);
         Task<List<TaskDeleteResult>> DeleteRangeAsync(IEnumerable<Guid> ids);
