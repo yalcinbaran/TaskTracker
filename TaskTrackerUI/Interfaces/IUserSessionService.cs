@@ -1,11 +1,12 @@
 ﻿using TaskTracker.Shared.Common;
+using TaskTrackerUI.Services;
 
-namespace TaskTracker.Shared.Interfaces
+namespace TaskTrackerUI.Interfaces
 {
     public interface IUserSessionService
     {
-        UserSession CurrentSession { get; }
         void SetSession(UserDTO user);
+        UserSession GetSession();
         void ClearSession();
     }
 }

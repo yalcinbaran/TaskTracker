@@ -12,7 +12,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
         {
             ArgumentNullException.ThrowIfNull(query);
 
-            var tasks = await _taskRepository.GetAllOverDueTasks(query.ReferenceDate!.Value);
+            var tasks = await _taskRepository.GetAllOverDueTasks(query.ReferenceDate!.Value, query.UserId);
             if (tasks == null || !tasks.Any())
             {
                 return [];

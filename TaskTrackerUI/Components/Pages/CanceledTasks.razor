@@ -46,6 +46,8 @@ else
 
 
 @code {
+    [CascadingParameter]
+    public UserSession UserSession { get; set; } = default!;
     MudDataGrid<TaskItemDTO>? Grid;
     private IEnumerable<TaskItemDTO> tasks = new List<TaskItemDTO>();
     List<Guid> selectedRowsIds = [];
@@ -106,7 +108,7 @@ else
                     if (response.Success)
                     {
                         Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
-                        await _canceledTasks.LoadCanceledTasks();
+                        await _canceledTasks.LoadCanceledTasks(UserSession.UserId);
                         tasks = _canceledTasks.GetCanceledTasks();
                         Grid!.SelectedItems.Clear();
                     }
@@ -143,7 +145,7 @@ else
 
                     if (response.Success || response.PartialSuccess)
                     {
-                        await _canceledTasks.LoadCanceledTasks();
+                        await _canceledTasks.LoadCanceledTasks(UserSession.UserId);
                         tasks = _canceledTasks.GetCanceledTasks();
                     }
                     Grid!.SelectedItems.Clear();

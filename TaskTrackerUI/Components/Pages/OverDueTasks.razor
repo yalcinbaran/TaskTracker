@@ -2,6 +2,7 @@
 @inject ITaskService _taskService
 @inject IOverdueTasksService _overdueTasks
 @inject ICompletedTasksService _completedTasks
+@inject ICanceledTasksService _canceledTasks
 @inject IActiveTaskService _activeTasks
 @inject ISnackbar Snackbar
 @inject ITaskApiService _taskApiService
@@ -51,6 +52,9 @@ else
 
 
 @code {
+    [CascadingParameter]
+    public UserSession UserSession { get; set; } = default!;
+
     MudDataGrid<TaskItemDTO>? Grid;
     private IEnumerable<StateDto> States = new List<StateDto>();
     private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
@@ -130,7 +134,7 @@ else
                     if (response.Success)
                     {
                         Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
-                        await _overdueTasks.LoadOverdueTasks(dateTime);
+                        await _overdueTasks.LoadOverdueTasks(dateTime, UserSession.UserId);
                         tasks = _overdueTasks.GetOverdueTasks();
                         Grid!.SelectedItems.Clear();
                     }
@@ -167,7 +171,7 @@ else
 
                     if (response.Success || response.PartialSuccess)
                     {
-                        await _overdueTasks.LoadOverdueTasks(dateTime);
+                        await _overdueTasks.LoadOverdueTasks(dateTime, UserSession.UserId);
                         tasks = _overdueTasks.GetOverdueTasks();
                     }
                     Grid!.SelectedItems.Clear();
@@ -202,18 +206,21 @@ else
             if (result?.Response.Success == true)
             {
                 Snackbar.Add("Görev başarıyla güncellendi.", Severity.Success);
-                await _overdueTasks.LoadOverdueTasks(dateTime);
+                await _overdueTasks.LoadOverdueTasks(dateTime, UserSession.UserId);
                 switch (result.TaskStateLevel)
                 {
+                    case 1: // İptal edilen
+                        await _canceledTasks.LoadCanceledTasks(UserSession.UserId);
+                        break;
                     case 2: // Beklemede
-                        await _activeTasks.LoadActiveTasks();
+                        await _activeTasks.LoadActiveTasks(UserSession.UserId);
                         break;
                     case 3: // Devam Ediyor
-                        await _activeTasks.LoadActiveTasks();
+                        await _activeTasks.LoadActiveTasks(UserSession.UserId);
                         break;
                     case 4: // Tamamlandı
-                        await _completedTasks.LoadCompletedTasks();
-                        break;                    
+                        await _completedTasks.LoadCompletedTasks(UserSession.UserId);
+                        break;
                 }
                 tasks = _overdueTasks.GetOverdueTasks();
                 Grid!.SelectedItems.Clear();

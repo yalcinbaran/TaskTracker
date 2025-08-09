@@ -4,7 +4,8 @@ namespace TaskTrackerUI.Interfaces
 {
     public interface IActiveTaskService
     {
-        Task LoadActiveTasks();
+        Task LoadActiveTasks(Guid userId);
         IReadOnlyList<TaskItemDTO> GetActiveTasks();
+        void ClearActiveTasks();
     }
 }

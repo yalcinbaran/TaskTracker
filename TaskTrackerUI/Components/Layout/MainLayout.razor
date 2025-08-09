@@ -12,7 +12,7 @@
     </MudDrawer>
     <div class="d-flex justify-center align-center mud-height-full">
         <CascadingValue TValue="UserSession" Value="_userSession">
-@Body
+            @Body
         </CascadingValue>
     </div>
 </MudDrawerContainer>
@@ -38,6 +38,6 @@
 
     protected override void OnInitialized()
     {
-        _userSession = _userSessionService.CurrentSession;
+        _userSession = _userSessionService.GetSession();
     }
 }

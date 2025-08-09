@@ -1,4 +1,5 @@
 ﻿@inject NavigationManager _navManager
+@inject IUserSessionService _session
 <MudNavMenu>
     <MudNavLink OnClick="@(() => { _navManager.NavigateTo("/home"); _isTasksMenuExpanded = false; })">Anasayfa</MudNavLink>
     <MudNavLink OnClick="@(() => _isTasksMenuExpanded = !_isTasksMenuExpanded)">Görevler</MudNavLink>
@@ -29,6 +30,8 @@
             </MudElement>
         </MudNavLink>
     </MudCollapse>
+    <MudSpacer/>
+    <MudNavLink OnClick="@(() =>  _session.ClearSession())">Çıkış yap</MudNavLink>
 </MudNavMenu>
 
 <style>

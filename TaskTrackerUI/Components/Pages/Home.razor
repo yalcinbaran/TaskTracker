@@ -23,6 +23,9 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    public UserSession UserSession { get; set; } = default!;
+
     private bool _isLoading = true;
     private double[] Data { get; set; } = Array.Empty<double>();
     private string[] Labels = {"Aktif Görevler", "Tamamlanmış Görevler", "Teslim Tarihi Geçmiş Görevler", "İptal Edilmiş Görevler" };
@@ -38,13 +41,13 @@ else
         await _statesAndPriorities.LoadPrioritiesAsync();
 
         // Load active tasks
-        await _activeTasks.LoadActiveTasks();
+        await _activeTasks.LoadActiveTasks(UserSession.UserId);
 
-        await _completedTasks.LoadCompletedTasks();
+        await _completedTasks.LoadCompletedTasks(UserSession.UserId);
 
-        await _overdueTasks.LoadOverdueTasks(dateTime);
+        await _overdueTasks.LoadOverdueTasks(dateTime, UserSession.UserId);
 
-        await _canceledTasks.LoadCanceledTasks();
+        await _canceledTasks.LoadCanceledTasks(UserSession.UserId);
 
         var activeTasks = _activeTasks.GetActiveTasks();
         var completedTasks = _completedTasks.GetCompletedTasks();

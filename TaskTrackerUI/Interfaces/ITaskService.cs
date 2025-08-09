@@ -5,11 +5,11 @@ namespace TaskTrackerUI.Interfaces
 {
     public interface ITaskService
     {
-        Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync();
-        Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync();
-        Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync();
-        Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync();
-        Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date);
+        Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync(Guid userId);
+        Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync(Guid userId);
+        Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync(Guid userId);
+        Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync(Guid userId);
+        Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date, Guid userId);
         Task<IEnumerable<TaskItemDTO>> GetTasksByStateAsync(int stateLevel);
         Task<ApiResponse<Guid?>> CreateTaskAsync(TaskModel model);
         Task<ApiResponse<TaskDeleteResult>> DeleteTaskAsync(Guid id);

@@ -8,14 +8,19 @@ namespace TaskTrackerUI.Services
         private readonly ITaskService _taskService = taskService;
         private List<TaskItemDTO> Tasks = [];
 
-        public async Task LoadOverdueTasks(DateTime date)
+        public async Task LoadOverdueTasks(DateTime date, Guid userId)
         {
-            Tasks = [.. (await _taskService.GetAllOverDueAsync(date))];
+            Tasks = [.. (await _taskService.GetAllOverDueAsync(date, userId))];
         }
 
         public List<TaskItemDTO> GetOverdueTasks()
         {
             return Tasks;
+        }
+
+        public void ClearOverdueTasks()
+        {
+            Tasks.Clear();
         }
     }
 }

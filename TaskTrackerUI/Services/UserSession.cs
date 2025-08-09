@@ -1,4 +1,4 @@
-﻿namespace TaskTracker.Shared.Common
+﻿namespace TaskTrackerUI.Services
 {
     public class UserSession
     {

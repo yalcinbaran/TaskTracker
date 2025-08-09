@@ -18,5 +18,8 @@ namespace TaskTrackerUI.Models
 
         [Required]
         public int StateLevel { get; set; }
+
+        [Required]
+        public Guid UserId { get; set; }
     }
 }

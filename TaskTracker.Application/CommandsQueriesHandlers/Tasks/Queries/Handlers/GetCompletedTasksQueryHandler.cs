@@ -11,7 +11,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
         {
             ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-            var tasks = await _taskRepository.GetAllCompletedTasksAsync();
+            var tasks = await _taskRepository.GetAllCompletedTasksAsync(query.UserId);
 
             var dtos = tasks.ToDtoList();
 

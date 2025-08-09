@@ -13,7 +13,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 
             var date = DateTime.UtcNow.Date;
 
-            var tasks = await _taskRepository.GetAllActiveTasksAsync(date);
+            var tasks = await _taskRepository.GetAllActiveTasksAsync(date, query.UserId);
 
             var dtos = tasks.ToDtoList();
 

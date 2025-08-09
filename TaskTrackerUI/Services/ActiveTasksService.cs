@@ -9,14 +9,19 @@ namespace TaskTrackerUI.Services
 
         private List<TaskItemDTO> Tasks { get; set; } = [];
 
-        public async Task LoadActiveTasks()
+        public async Task LoadActiveTasks(Guid userId)
         {
-            Tasks = [.. (await _taskService.GetAllActiveAsync())];
+            Tasks = [.. (await _taskService.GetAllActiveAsync(userId))];
         }
 
         public IReadOnlyList<TaskItemDTO> GetActiveTasks()
         {
             return Tasks;
+        }
+
+        public void ClearActiveTasks()
+        {
+            Tasks.Clear();
         }
     }
 }

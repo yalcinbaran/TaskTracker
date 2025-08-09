@@ -4,7 +4,8 @@ namespace TaskTrackerUI.Interfaces
 {
     public interface ICompletedTasksService
     {
-        Task LoadCompletedTasks();
+        Task LoadCompletedTasks(Guid userId);
         IReadOnlyList<TaskItemDTO> GetCompletedTasks();
+        void ClearCompletedTasks();
     }
 }

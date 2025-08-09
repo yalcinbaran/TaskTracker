@@ -1,6 +1,7 @@
 ﻿@inject IDialogService DialogService
 @inject ITaskApiService _taskApiService
 @inject ITaskService _taskService
+@inject IStateAndPriorityService _stateAndPriority
 
 <MudDialog>
     <DialogContent>
@@ -44,10 +45,10 @@
     [Parameter] public TaskItemDTO? Task { get; set; } = new TaskItemDTO();
     private DateTime dateTime = DateTime.Today;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Priorities = (await _taskApiService.GetPrioritiesAsync()).ToList();
-        States = (await _taskApiService.GetStatesAsync()).ToList();
+        Priorities = _stateAndPriority.GetPriorities().ToList();
+        States = _stateAndPriority.GetStates().ToList();
     }
 
     private async Task Update()

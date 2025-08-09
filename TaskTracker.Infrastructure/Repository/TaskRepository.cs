@@ -30,9 +30,9 @@ namespace TaskTracker.Infrastructure.Repository
             return await _context.TaskItems.FindAsync(id);
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllAsync()
+        public async Task<IEnumerable<TaskItem>> GetAllAsync(Guid userId)
         {
-            return await _context.TaskItems.AsNoTracking().ToListAsync();
+            return await _context.TaskItems.Where(t => t.UserId == userId).AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<TaskItem>> GetTasksByStateAsync(int taskStateLevel)
@@ -40,15 +40,15 @@ namespace TaskTracker.Infrastructure.Repository
             return await _context.TaskItems.Where(t => t.TaskState!.Level == taskStateLevel).AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date)
+        public async Task<IEnumerable<TaskItem>> GetAllOverDueTasks(DateTime date, Guid userId)
         {
-            return await _context.TaskItems.Where(t => t.DueDate.Date < date.Date).AsNoTracking().ToListAsync();
+            return await _context.TaskItems.Where(t => t.DueDate.Date < date.Date && t.UserId == userId).AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllActiveTasksAsync(DateTime currentDate)
+        public async Task<IEnumerable<TaskItem>> GetAllActiveTasksAsync(DateTime currentDate, Guid userId)
         {
             return await _context.TaskItems.Include(t => t.TaskState)
-                                           .Where(t => t.DueDate >= currentDate && t.TaskState!.Level != 4 && t.TaskState!.Level != 1) 
+                                           .Where(t => t.DueDate >= currentDate && t.TaskState!.Level != 4 && t.TaskState!.Level != 1 && t.UserId == userId)
                                            .ToListAsync();
         }
 
@@ -118,16 +118,16 @@ namespace TaskTracker.Infrastructure.Repository
             return results;
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllCompletedTasksAsync()
+        public async Task<IEnumerable<TaskItem>> GetAllCompletedTasksAsync(Guid userId)
         {
-            return await _context.TaskItems.Where(t => t.TaskState!.Level == 4) 
+            return await _context.TaskItems.Where(t => t.TaskState!.Level == 4 && t.UserId == userId)
                                            .AsNoTracking()
                                            .ToListAsync();
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllCanceledTasksAsync()
+        public async Task<IEnumerable<TaskItem>> GetAllCanceledTasksAsync(Guid userId)
         {
-            return await _context.TaskItems.Where(t => t.TaskState!.Level == 1)
+            return await _context.TaskItems.Where(t => t.TaskState!.Level == 1 && t.UserId == userId)
                                            .AsNoTracking()
                                            .ToListAsync();
         }

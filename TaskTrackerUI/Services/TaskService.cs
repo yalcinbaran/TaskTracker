@@ -8,10 +8,10 @@ namespace TaskTrackerUI.Services
     {
         private readonly IHttpClientFactory _httpClient = httpClient;
 
-        public async Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync()
+        public async Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync(Guid userId)
         {
             var client = _httpClient.CreateClient("ApiClient");
-            var result = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetAllTasks");
+            var result = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/GetAllTasks?userId={userId}");
             return result!;
         }
 
@@ -104,38 +104,40 @@ namespace TaskTrackerUI.Services
             return (apiResponse);
         }
 
-        public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync()
+        public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync(Guid userId)
         {
             var client = _httpClient.CreateClient("ApiClient");
 
-            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetActiveTasks");
+            var url = $"api/Task/GetActiveTasks?userId={userId}";
+
+            var response = await client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>(url);
 
             return response!;
         }
 
-        public Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date)
+        public Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date, Guid userId)
         {
             var client = _httpClient.CreateClient("ApiClient");
 
-            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/TaskSearch/GetOverDueTasks?date={date:yyyy-MM-dd}");
+            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/TaskSearch/GetOverDueTasks?date={date:yyyy-MM-dd}&userId={userId}");
 
             return response!;
         }
 
-        public Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync()
+        public Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync(Guid userId)
         {
             var cient = _httpClient.CreateClient("ApiClient");
 
-            var response = cient.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetCompletedTasks");
+            var response = cient.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/GetCompletedTasks?userId={userId}");
 
             return response!;
         }
 
-        public Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync()
+        public Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync(Guid userId)
         {
             var client = _httpClient.CreateClient("ApiClient");
 
-            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetCanceledTasks");
+            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/Task/GetCanceledTasks?userId={userId}");
 
             return response!;
         }

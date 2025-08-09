@@ -30,9 +30,12 @@
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreateTaskAsync" Style="margin-top: 20px;">Görev Ekle</MudButton>
 
 @code {
+    [CascadingParameter]
+    public UserSession UserSession { get; set; } = default!;
+
     MudForm? mudForm;
     private IEnumerable<PriorityDto> Priorities = new List<PriorityDto>();
-    private TaskModel createTaskModel = new TaskModel();
+    private TaskModel createTaskModel { get; set; } = new TaskModel();
     private DateTime dateTime = DateTime.Today;
 
     protected override void OnInitialized()
@@ -44,6 +47,7 @@
         }
         GetPriority();
         createTaskModel.StateLevel = 3;
+        createTaskModel.UserId = UserSession.UserId;
         StateHasChanged();
     }
 
@@ -63,12 +67,13 @@
         if (createTaskModel != null)
         {
             createTaskModel.StateLevel = 3;
+            
             var response = await _taskService.CreateTaskAsync(createTaskModel);
             if (response.Success)
             {
                 _appMessageState.SnackbarMessage = "Görev başarıyla oluşturuldu!";
                 _appMessageState.SnackbarSeverity = Severity.Success;
-                _navManager.NavigateTo("/tasks");
+                _navManager.NavigateTo("/activetasks");
             }
             else
             {

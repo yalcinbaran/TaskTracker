@@ -4,7 +4,8 @@ namespace TaskTrackerUI.Interfaces
 {
     public interface ICanceledTasksService
     {
-        Task LoadCanceledTasks();
+        Task LoadCanceledTasks(Guid userId);
         IReadOnlyList<TaskItemDTO> GetCanceledTasks();
+        void ClearCanceledTasks();
     }
 }

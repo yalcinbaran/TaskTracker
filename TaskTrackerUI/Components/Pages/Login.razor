@@ -61,7 +61,8 @@
 
                 if (result.Success && result.Data is not null)
                 {
-                    _navManager.NavigateTo("/home", forceLoad:true);
+                    _userSessionService.SetSession(result.Data);
+                    _navManager.NavigateTo("/home");
                 }
                 else
                 {

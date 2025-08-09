@@ -2,5 +2,6 @@
 {
     public class GetCanceledTasksQuery
     {
+        public Guid UserId { get; set; }
     }
 }

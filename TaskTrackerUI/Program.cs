@@ -1,7 +1,5 @@
 using MudBlazor;
 using MudBlazor.Services;
-using TaskTracker.Shared.Interfaces;
-using TaskTracker.Shared.Services;
 using TaskTrackerUI.Components;
 using TaskTrackerUI.Interfaces;
 using TaskTrackerUI.Services;

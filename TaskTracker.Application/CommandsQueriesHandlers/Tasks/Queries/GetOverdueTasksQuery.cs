@@ -4,5 +4,6 @@
     public class GetOverdueTasksQuery
     {
         public DateTime? ReferenceDate { get; set; } = DateTime.UtcNow;
+        public Guid UserId { get; set; }
     }
 }

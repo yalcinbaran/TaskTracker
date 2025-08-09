@@ -11,7 +11,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 
         public async Task<IEnumerable<TaskItemDTO?>> HandleAsync(GetAllTasksQuery query)
         {
-            var tasks = await _taskRepository.GetAllAsync();
+            var tasks = await _taskRepository.GetAllAsync(query.UserId);
             return tasks.ToDtoList();
         }
     }

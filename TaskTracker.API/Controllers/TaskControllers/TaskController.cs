@@ -113,30 +113,41 @@ namespace TaskTracker.API.Controllers.TaskControllers
         }
 
         [HttpGet("GetAllTasks")]
-        public async Task<IActionResult> GetAllTasks()
+        public async Task<IActionResult> GetAllTasks([FromQuery] Guid userId)
         {
-            var taskDtos = await _getAllTasks.HandleAsync(new GetAllTasksQuery());
+            if (userId == Guid.Empty)
+                return BadRequest("UserId geçerli bir değer olmalı.");
+
+            var taskDtos = await _getAllTasks.HandleAsync(new GetAllTasksQuery() { UserId = userId});
             return Ok(taskDtos);
         }
 
         [HttpGet("GetActiveTasks")]
-        public async Task<IActionResult> GetActiveTasks()
+        public async Task<IActionResult> GetActiveTasks([FromQuery] Guid userId)
         {
-            var taskDtos = await _getActiveTasks.HandleAsync(new GetActiveTasksQuery());
+            if (userId == Guid.Empty)
+                return BadRequest("UserId geçerli bir değer olmalı.");
+            GetActiveTasksQuery query = new() { UserId = userId };
+            var taskDtos = await _getActiveTasks.HandleAsync(query);
             return Ok(taskDtos);
         }
 
         [HttpGet("GetCompletedTasks")]
-        public async Task<IActionResult> GetCompletedTasks()
+        public async Task<IActionResult> GetCompletedTasks([FromQuery] Guid userId)
         {
-            var taskDtos = await _getCompletedTasks.HandleAsync(new GetCompletedTasksQuery());
+            if (userId == Guid.Empty)
+                return BadRequest("UserId geçerli bir değer olmalı.");
+            GetCompletedTasksQuery query = new() { UserId = userId };
+            var taskDtos = await _getCompletedTasks.HandleAsync(query);
             return Ok(taskDtos);
         }
 
         [HttpGet("GetCanceledTasks")]
-        public async Task<IActionResult> GetCanceledTasks()
+        public async Task<IActionResult> GetCanceledTasks([FromQuery] Guid userId)
         {
-            var taskDtos = await _getCanceledTasks.HandleAsync(new GetCanceledTasksQuery());
+            if (userId == Guid.Empty)
+                return BadRequest("UserId geçerli bir değer olmalı.");
+            var taskDtos = await _getCanceledTasks.HandleAsync(new GetCanceledTasksQuery() { UserId = userId });
             return Ok(taskDtos);
         }
 

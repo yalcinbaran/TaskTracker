@@ -9,14 +9,19 @@ namespace TaskTrackerUI.Services
 
         private List<TaskItemDTO> Tasks { get; set; } = [];
 
-        public async Task LoadCanceledTasks()
+        public async Task LoadCanceledTasks(Guid userId)
         {
-            Tasks = [.. (await _taskService.GetAllCanceledAsync())];
+            Tasks = [.. (await _taskService.GetAllCanceledAsync(userId))];
         }
 
         public IReadOnlyList<TaskItemDTO> GetCanceledTasks()
         {
             return Tasks;
+        }
+
+        public void ClearCanceledTasks()
+        {
+            Tasks.Clear();
         }
     }
 }

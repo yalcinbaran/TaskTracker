@@ -14,11 +14,13 @@ namespace TaskTracker.API.Controllers.TaskControllers
         /// Belirli bir tarihe kadar gecikmiş görevleri getirir.
 
         [HttpGet("GetOverDueTasks")]
-        public async Task<IActionResult> GetOverdueTasks([FromQuery] DateTime date)
+        public async Task<IActionResult> GetOverdueTasks([FromQuery] DateTime date, [FromQuery] Guid userId)
         {
             if (date == default)
                 return BadRequest("Geçersiz tarih.");
-            var query = new GetOverdueTasksQuery { ReferenceDate = date };
+            if (userId == default)
+                return BadRequest("Geçersiz kullanıcı ID.");
+            var query = new GetOverdueTasksQuery { ReferenceDate = date, UserId = userId };
             try
             {
                 var overdueTasks = await _overdueTasksHandler.HandleAsync(query);

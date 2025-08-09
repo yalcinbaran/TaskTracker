@@ -2,6 +2,6 @@
 {
     public class GetActiveTasksQuery
     {
-        
+        public Guid UserId { get; set; }
     }
 }

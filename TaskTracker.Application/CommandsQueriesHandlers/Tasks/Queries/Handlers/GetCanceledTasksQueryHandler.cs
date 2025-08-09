@@ -12,7 +12,7 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
         {
             ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-            var tasks = await _taskRepository.GetAllCanceledTasksAsync();
+            var tasks = await _taskRepository.GetAllCanceledTasksAsync(query.UserId);
 
             var dtos = tasks.ToDtoList();
 
