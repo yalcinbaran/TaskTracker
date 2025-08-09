@@ -20,6 +20,7 @@ Welcome to your new app.
         DateTime dateTime = DateTime.Today;
         // Load active tasks and states/priority data
         await _statesAndPriorities.LoadStatesAsync();
+
         await _statesAndPriorities.LoadPrioritiesAsync();
 
         // Load active tasks

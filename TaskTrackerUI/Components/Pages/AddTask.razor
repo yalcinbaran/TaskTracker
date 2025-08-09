@@ -5,7 +5,7 @@
 @inject IUserSessionService _userService
 @inject NavigationManager _navManager
 @inject AppMessageState _appMessageState
-@inject StateAndPriorityService _stateAndPriorities
+@inject IStateAndPriorityService _stateAndPriorities
 
 <MudForm @ref="@mudForm" Model="createTaskModel" Style="width:800px; margin-top: 50px;">
     <MudTextField T="string" Label="Görev Başlığı" @bind-Value="@createTaskModel.Title" For="@(() => createTaskModel.Title)" Required="true" />
