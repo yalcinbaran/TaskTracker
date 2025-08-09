@@ -61,10 +61,16 @@
             TaskStateLevel = GetStateLevelFromName(Task.TaskStateName),
             UserId = Task.UserId,
         };
+
         var response = await _taskService.UpdateTaskAsync(updateTask);
 
-        // Dialogu kapat ve sonucu dön
-        MudDialog!.Close(DialogResult.Ok(response));
+        var result = new UpdateTaskDialogResult
+        {
+            Response = response,
+            TaskStateLevel = updateTask.TaskStateLevel
+        };
+
+        MudDialog!.Close(DialogResult.Ok(result));
     }
 
     private void Cancel()

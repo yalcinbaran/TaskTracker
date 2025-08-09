@@ -1,18 +1,41 @@
-﻿<MudNavMenu>
-    <MudNavLink Href="/activetasks" Match="NavLinkMatch.All">
-        Aktif Görevler
-    </MudNavLink>
-    <MudNavLink Href="/completedtasks" Match="NavLinkMatch.All">
-        Tamamlanmış Görevler
-    </MudNavLink>
-    <MudNavLink Href="/overduetasks" Match="NavLinkMatch.All">
-        Süresi Geçmiş Görevler
-    </MudNavLink>
-    <MudNavLink Href="/addtask">
-        Görev Ekle
-    </MudNavLink>
+﻿@inject NavigationManager _navManager
+<MudNavMenu>
+    <MudNavLink OnClick="@(() => _isTasksMenuExpanded = !_isTasksMenuExpanded)">Görevler</MudNavLink>
+    <MudCollapse Expanded="@_isTasksMenuExpanded">
+        <MudNavLink Href="/activetasks" Match="NavLinkMatch.All">
+            <MudElement Class="submenu">
+                Aktif Görevler
+            </MudElement>
+        </MudNavLink>
+        <MudNavLink Href="/completedtasks" Match="NavLinkMatch.All">
+            <MudElement Class="submenu">
+                Tamamlanmış Görevler
+            </MudElement>
+        </MudNavLink>
+        <MudNavLink Href="/overduetasks" Match="NavLinkMatch.All">
+            <MudElement Class="submenu">
+                Süresi Geçmiş Görevler
+            </MudElement>
+        </MudNavLink>
+        <MudNavLink Href="/canceledtasks" Match="NavLinkMatch.All">
+            <MudElement Class="submenu">
+                İptal Edilen Görevler
+            </MudElement>
+        </MudNavLink>
+        <MudNavLink Href="/addtask">
+            <MudElement Class="submenu">
+                Görev Ekle
+            </MudElement>
+        </MudNavLink>
+    </MudCollapse>
 </MudNavMenu>
 
-@code {
+<style>
+    .submenu{
+        margin-left: 20px;
+    }
+</style>
 
+@code {
+    private bool _isTasksMenuExpanded { get; set; } = false;
 }

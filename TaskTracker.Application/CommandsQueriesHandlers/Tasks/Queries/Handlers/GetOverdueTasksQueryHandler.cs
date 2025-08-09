@@ -1,5 +1,4 @@
 ﻿using TaskTracker.Application.Mappings;
-using TaskTracker.Application.Tasks.Queries;
 using TaskTracker.Domain.Interfaces;
 using TaskTracker.Shared.Common;
 
@@ -12,8 +11,8 @@ namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
         public async Task<IEnumerable<TaskItemDTO>> HandleAsync(GetOverdueTasksQuery query)
         {
             ArgumentNullException.ThrowIfNull(query);
-            DateTime date = query.ReferenceDate!.Value.Date;
-            var tasks = await _taskRepository.GetAllOverDueTasks(date);
+
+            var tasks = await _taskRepository.GetAllOverDueTasks(query.ReferenceDate!.Value);
             if (tasks == null || !tasks.Any())
             {
                 return [];

@@ -101,7 +101,7 @@ namespace TaskTrackerUI.Services
                 Data = operationResult ?? OperationResult.Fail("Bilinmeyen hata.")
             };
 
-            return apiResponse;
+            return (apiResponse);
         }
 
         public async Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync()
@@ -115,7 +115,11 @@ namespace TaskTrackerUI.Services
 
         public Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date)
         {
-            throw new NotImplementedException();
+            var client = _httpClient.CreateClient("ApiClient");
+
+            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>($"api/TaskSearch/GetOverDueTasks?date={date:yyyy-MM-dd}");
+
+            return response!;
         }
 
         public Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync()
@@ -123,6 +127,15 @@ namespace TaskTrackerUI.Services
             var cient = _httpClient.CreateClient("ApiClient");
 
             var response = cient.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetCompletedTasks");
+
+            return response!;
+        }
+
+        public Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync()
+        {
+            var client = _httpClient.CreateClient("ApiClient");
+
+            var response = client.GetFromJsonAsync<IEnumerable<TaskItemDTO>>("api/Task/GetCanceledTasks");
 
             return response!;
         }

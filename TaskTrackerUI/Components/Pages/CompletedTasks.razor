@@ -1,9 +1,10 @@
 ﻿@page "/completedtasks"
-@inject ITaskService _taskService
 @inject ISnackbar Snackbar
 @inject ITaskApiService _taskApiService
+@inject ITaskService _taskService
 @inject IDialogService DialogService
 @inject AppMessageState _appMessageState
+@inject ICompletedTasksService _completedTasks
 
 @if (_isLoading)
 {
@@ -49,18 +50,17 @@ else
     List<Guid> selectedRowsIds = [];
     private bool _isDeleteDisabled = true;
     private bool _isUpdateDisabled = true;
-    private int stateLevel = 0;
     private StateDto? selectedState { get; set; }
     private bool _isLoading = true;
     private TaskItemDTO? itemToUpdate { get; set; }
     private DateTime dateTime = DateTime.Today;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         _isLoading = true;
         try
         {
-            tasks = await _taskService.GetAllCompletedAsync();
+            tasks = _completedTasks.GetCompletedTasks();
             _isLoading = false;
         }
         catch (Exception ex)
@@ -105,7 +105,7 @@ else
                     if (response.Success)
                     {
                         Snackbar.Add($"{response.Data!.TaskTitle} başlıklı görev silindi.", Severity.Success);
-                        tasks = await _taskService.GetAllTasksAsync();
+                        tasks = _completedTasks.GetCompletedTasks();
                         Grid!.SelectedItems.Clear();
                     }
                     else
@@ -141,7 +141,7 @@ else
 
                     if (response.Success || response.PartialSuccess)
                     {
-                        tasks = await _taskService.GetAllTasksAsync();
+                        tasks = _completedTasks.GetCompletedTasks();
                     }
                     Grid!.SelectedItems.Clear();
                     StateHasChanged();

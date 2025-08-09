@@ -20,7 +20,8 @@ namespace TaskTracker.API.Controllers.TaskControllers
                                 GetPriorityQueryHandler getPriorities,
                                 GetStatesQueryHandler getStates,
                                 GetTasksByStateQueryHandler getTasksByState,
-                                GetCompletedTasksQueryHandler getCompletedTasks) : ControllerBase
+                                GetCompletedTasksQueryHandler getCompletedTasks,
+                                GetCanceledTasksQueryHandler getCanceledTasks) : ControllerBase
     {
         private readonly CreateTaskCommandHandler _createTask = createTask;
         private readonly UpdateTaskCommandHandler _updateTask = updateTask;
@@ -32,6 +33,7 @@ namespace TaskTracker.API.Controllers.TaskControllers
         private readonly GetStatesQueryHandler _getStates = getStates;
         private readonly GetTasksByStateQueryHandler _getTasksByState = getTasksByState;
         private readonly GetCompletedTasksQueryHandler _getCompletedTasks = getCompletedTasks;
+        private readonly GetCanceledTasksQueryHandler _getCanceledTasks = getCanceledTasks;
 
         [HttpPost("CreateTask")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskCommand command)
@@ -128,6 +130,13 @@ namespace TaskTracker.API.Controllers.TaskControllers
         public async Task<IActionResult> GetCompletedTasks()
         {
             var taskDtos = await _getCompletedTasks.HandleAsync(new GetCompletedTasksQuery());
+            return Ok(taskDtos);
+        }
+
+        [HttpGet("GetCanceledTasks")]
+        public async Task<IActionResult> GetCanceledTasks()
+        {
+            var taskDtos = await _getCanceledTasks.HandleAsync(new GetCanceledTasksQuery());
             return Ok(taskDtos);
         }
 

@@ -4,14 +4,15 @@ using TaskTracker.Shared.Common;
 
 namespace TaskTracker.Application.CommandsQueriesHandlers.Tasks.Queries.Handlers
 {
-    public class GetCompletedTasksQueryHandler (ITaskRepository taskRepository)
+    public class GetCanceledTasksQueryHandler(ITaskRepository taskRepository)
     {
         private readonly ITaskRepository _taskRepository = taskRepository;
-        public async Task<IEnumerable<TaskItemDTO>> HandleAsync(GetCompletedTasksQuery query)
+
+        public async Task<IEnumerable<TaskItemDTO>> HandleAsync(GetCanceledTasksQuery query)
         {
             ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-            var tasks = await _taskRepository.GetAllCompletedTasksAsync();
+            var tasks = await _taskRepository.GetAllCanceledTasksAsync();
 
             var dtos = tasks.ToDtoList();
 

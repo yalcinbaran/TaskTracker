@@ -48,7 +48,7 @@ namespace TaskTracker.Infrastructure.Repository
         public async Task<IEnumerable<TaskItem>> GetAllActiveTasksAsync(DateTime currentDate)
         {
             return await _context.TaskItems.Include(t => t.TaskState)
-                                           .Where(t => t.DueDate >= currentDate && t.TaskState!.Level != 4) 
+                                           .Where(t => t.DueDate >= currentDate && t.TaskState!.Level != 4 && t.TaskState!.Level != 1) 
                                            .ToListAsync();
         }
 
@@ -118,9 +118,16 @@ namespace TaskTracker.Infrastructure.Repository
             return results;
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAlCompletedTasksAsync()
+        public async Task<IEnumerable<TaskItem>> GetAllCompletedTasksAsync()
         {
             return await _context.TaskItems.Where(t => t.TaskState!.Level == 4) 
+                                           .AsNoTracking()
+                                           .ToListAsync();
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetAllCanceledTasksAsync()
+        {
+            return await _context.TaskItems.Where(t => t.TaskState!.Level == 1)
                                            .AsNoTracking()
                                            .ToListAsync();
         }

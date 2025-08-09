@@ -8,6 +8,7 @@ namespace TaskTrackerUI.Interfaces
         Task<IEnumerable<TaskItemDTO>> GetAllTasksAsync();
         Task<IEnumerable<TaskItemDTO>> GetAllActiveAsync();
         Task<IEnumerable<TaskItemDTO>> GetAllCompletedAsync();
+        Task<IEnumerable<TaskItemDTO>> GetAllCanceledAsync();
         Task<IEnumerable<TaskItemDTO>> GetAllOverDueAsync(DateTime date);
         Task<IEnumerable<TaskItemDTO>> GetTasksByStateAsync(int stateLevel);
         Task<ApiResponse<Guid?>> CreateTaskAsync(TaskModel model);
